@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-10-15T22:24:48.472772",
+  "analysis": {},
+  "selected_indicators": [
+    "ATR",
+    "MACD"
+  ],
+  "status": "success"
+}

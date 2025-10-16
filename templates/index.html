@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام التداول المتقدم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .checkbox-item:hover {
+            background: #e9ecef;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .status-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .status-value {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .status-running {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .pair-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .pair-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .pair-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .pair-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .signal-badge {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .signal-call {
+            background: #28a745;
+            color: white;
+        }
+
+        .signal-put {
+            background: #dc3545;
+            color: white;
+        }
+
+        .signal-hold {
+            background: #6c757d;
+            color: white;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .confidence-high {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        }
+
+        .confidence-medium {
+            background: linear-gradient(90deg, #ffc107 0%, #fd7e14 100%);
+        }
+
+        .confidence-low {
+            background: linear-gradient(90deg, #6c757d 0%, #495057 100%);
+        }
+
+        .info-section {
+            margin: 15px 0;
+        }
+
+        .info-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-content {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .price-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .price-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .timing-section {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .timing-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .timing-label {
+            font-weight: bold;
+            color: #856404;
+        }
+
+        .timing-value {
+            color: #333;
+        }
+
+        .indicators-list {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .indicator-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 13px;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .indicator-name {
+            font-weight: bold;
+            color: #0056b3;
+        }
+
+        .indicator-value {
+            color: #333;
+        }
+
+        .details-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .detail-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            border-right: 4px solid #667eea;
+            font-size: 13px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        .select-all-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .select-all-btn:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 نظام التداول المتقدم - التحليل الفني</h1>
+        </div>
+
+        <div class="control-panel">
+            <div class="section-title">⚙️ إعدادات التحليل</div>
+
+            <div class="form-group">
+                <label>🔑 مفتاح API (TwelveData):</label>
+                <input type="password" id="apiKey" placeholder="أدخل مفتاح API الخاص بك" value="">
+                <small style="color: #666; font-size: 12px;">اتركه فارغاً لاستخدام المفتاح الافتراضي</small>
+            </div>
+
+            <div class="form-group">
+                <label>⏱️ مدة الصفقة (بالدقائق):</label>
+                <input type="number" id="tradeInterval" value="1" min="1" max="60">
+            </div>
+
+            <div class="form-group">
+                <label>📊 اختر المؤشرات الفنية:</label>
+                <button class="select-all-btn" onclick="toggleAllIndicators()">تحديد/إلغاء الكل</button>
+                <div class="checkbox-grid" id="indicatorsGrid"></div>
+            </div>
+
+            <div class="form-group">
+                <label>🎯 اختر استراتيجية التداول:</label>
+                <select id="strategySelect">
+                    <option value="default">الاستراتيجية الافتراضية (متوازنة)</option>
+                    <option value="conservative">استراتيجية محافظة (أقل مخاطر)</option>
+                    <option value="aggressive">استراتيجية عدوانية (أعلى عوائد)</option>
+                    <option value="trend_following">متابعة الاتجاه</option>
+                    <option value="mean_reversion">العودة للوسط</option>
+                    <option value="breakout">استراتيجية الاختراق</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>💱 اختر أزواج العملات:</label>
+                <button class="select-all-btn" onclick="toggleAllPairs()">تحديد/إلغاء الكل</button>
+                <div class="checkbox-grid" id="pairsGrid"></div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-start" id="startBtn" onclick="startAnalysis()">▶️ بدء التحليل</button>
+                <button class="btn btn-stop" id="stopBtn" onclick="stopAnalysis()" disabled>⏹️ إيقاف التحليل</button>
+                <button class="btn btn-refresh" id="refreshBtn" onclick="refreshResults()">🔄 تحديث النتائج</button>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-label">الحالة:</span>
+                <span class="status-value status-stopped" id="statusIndicator">متوقف</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">آخر تحديث:</span>
+                <span class="status-value" style="background: #e7f3ff; color: #0056b3;" id="lastUpdate">-</span>
+            </div>
+        </div>
+
+        <div class="results-grid" id="resultsGrid">
+            <div class="no-data">قم ببدء التحليل لعرض النتائج</div>
+        </div>
+    </div>
+
+    <script>
+        let indicators = {};
+        let pairs = [];
+
+        // تحميل المؤشرات والأزواج عند تحميل الصفحة
+        window.onload = function() {
+            loadIndicators();
+            loadPairs();
+        };
+
+        function loadIndicators() {
+            fetch('/api/indicators')
+                .then(response => response.json())
+                .then(data => {
+                    indicators = data;
+                    const grid = document.getElementById('indicatorsGrid');
+                    grid.innerHTML = '';
+                    
+                    Object.keys(indicators).forEach(key => {
+                        const div = document.createElement('div');
+                        div.className = 'checkbox-item';
+                        div.innerHTML = `
+                            <input type="checkbox" id="ind_${key}" value="${key}" checked>
+                            <label for="ind_${key}">${indicators[key]}</label>
+                        `;
+                        grid.appendChild(div);
+                    });
+                })
+                .catch(error => console.error('Error loading indicators:', error));
+        }
+
+        function loadPairs() {
+            fetch('/api/pairs')
+                .then(response => response.json())
+                .then(data => {
+                    pairs = data;
+                    const grid = document.getElementById('pairsGrid');
+                    grid.innerHTML = '';
+                    
+                    pairs.forEach(pair => {
+                        const div = document.createElement('div');
+                        div.className = 'checkbox-item';
+                        div.innerHTML = `
+                            <input type="checkbox" id="pair_${pair}" value="${pair}" checked>
+                            <label for="pair_${pair}">${pair}</label>
+                        `;
+                        grid.appendChild(div);
+                    });
+                })
+                .catch(error => console.error('Error loading pairs:', error));
+        }
+
+        function toggleAllIndicators() {
+            const checkboxes = document.querySelectorAll('#indicatorsGrid input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+        }
+
+        function toggleAllPairs() {
+            const checkboxes = document.querySelectorAll('#pairsGrid input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+        }
+
+        function getSelectedIndicators() {
+            const checkboxes = document.querySelectorAll('#indicatorsGrid input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function getSelectedPairs() {
+            const checkboxes = document.querySelectorAll('#pairsGrid input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function startAnalysis() {
+            const selectedIndicators = getSelectedIndicators();
+            const selectedPairs = getSelectedPairs();
+            const interval = parseInt(document.getElementById('tradeInterval').value);
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const strategy = document.getElementById('strategySelect').value;
+
+            if (selectedIndicators.length === 0) {
+                alert('يرجى اختيار مؤشر واحد على الأقل');
+                return;
+            }
+
+            if (selectedPairs.length === 0) {
+                alert('يرجى اختيار زوج واحد على الأقل');
+                return;
+            }
+
+            const data = {
+                api_key: apiKey,
+                indicators: selectedIndicators,
+                pairs: selectedPairs,
+                interval: interval,
+                period: 250,
+                strategy: strategy
+            };
+
+            fetch('/api/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('statusIndicator').textContent = 'يعمل';
+                    document.getElementById('statusIndicator').className = 'status-value status-running';
+                    alert('تم بدء التحليل بنجاح');
+                } else {
+                    alert('خطأ: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ في بدء التحليل');
+            });
+        }
+
+        function stopAnalysis() {
+            fetch('/api/stop', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('statusIndicator').textContent = 'متوقف';
+                document.getElementById('statusIndicator').className = 'status-value status-stopped';
+                alert('تم إيقاف التحليل');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ في إيقاف التحليل');
+            });
+        }
+
+        function refreshResults() {
+            fetch('/api/results')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success' && data.analysis) {
+                        displayResults(data);
+                    } else {
+                        document.getElementById('resultsGrid').innerHTML = '<div class="no-data">لا توجد نتائج متاحة</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('حدث خطأ في تحديث النتائج');
+                });
+        }
+
+        function displayResults(data) {
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = '';
+
+            if (!data.analysis || Object.keys(data.analysis).length === 0) {
+                grid.innerHTML = '<div class="no-data">لا توجد نتائج متاحة</div>';
+                return;
+            }
+
+            // تحديث وقت آخر تحديث
+            const updateTime = new Date(data.timestamp);
+            document.getElementById('lastUpdate').textContent = updateTime.toLocaleTimeString('ar-EG');
+
+            Object.keys(data.analysis).forEach(pair => {
+                const analysis = data.analysis[pair];
+                const card = createPairCard(pair, analysis);
+                grid.appendChild(card);
+            });
+        }
+
+        function createPairCard(pair, analysis) {
+            const card = document.createElement('div');
+            card.className = 'pair-card';
+
+            let signalClass = 'signal-hold';
+            if (analysis.signal === 'CALL') signalClass = 'signal-call';
+            else if (analysis.signal === 'PUT') signalClass = 'signal-put';
+
+            let confidenceClass = 'confidence-low';
+            if (analysis.confidence >= 70) confidenceClass = 'confidence-high';
+            else if (analysis.confidence >= 40) confidenceClass = 'confidence-medium';
+
+            let indicatorsHtml = '';
+            if (analysis.indicators) {
+                Object.keys(analysis.indicators).forEach(key => {
+                    const value = analysis.indicators[key];
+                    if (value !== null && value !== undefined) {
+                        indicatorsHtml += `
+                            <div class="indicator-item">
+                                <span class="indicator-name">${key}</span>
+                                <span class="indicator-value">${typeof value === 'number' ? value.toFixed(5) : value}</span>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            let detailsHtml = '';
+            if (analysis.all_details && analysis.all_details.length > 0) {
+                analysis.all_details.forEach(detail => {
+                    detailsHtml += `<div class="detail-item">${detail}</div>`;
+                });
+            }
+
+            card.innerHTML = `
+                <div class="pair-header">
+                    <div class="pair-name">${pair}</div>
+                    <div class="signal-badge ${signalClass}">${analysis.signal_text}</div>
+                </div>
+
+                <div class="confidence-bar">
+                    <div class="confidence-fill ${confidenceClass}" style="width: ${analysis.confidence}%">
+                        ${analysis.confidence}% ثقة
+                    </div>
+                </div>
+
+                <div class="price-grid">
+                    <div class="price-item">
+                        <div class="price-label">الافتتاح</div>
+                        <div class="price-value">${analysis.price.open ? analysis.price.open.toFixed(5) : '-'}</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">الإغلاق</div>
+                        <div class="price-value">${analysis.price.close ? analysis.price.close.toFixed(5) : '-'}</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">الأعلى</div>
+                        <div class="price-value">${analysis.price.high ? analysis.price.high.toFixed(5) : '-'}</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">الأدنى</div>
+                        <div class="price-value">${analysis.price.low ? analysis.price.low.toFixed(5) : '-'}</div>
+                    </div>
+                </div>
+
+                ${analysis.trade_timing ? `
+                <div class="timing-section">
+                    <div class="timing-item">
+                        <span class="timing-label">⏰ وقت الدخول:</span>
+                        <span class="timing-value">${analysis.trade_timing.entry_time}</span>
+                    </div>
+                    <div class="timing-item">
+                        <span class="timing-label">🏁 وقت الخروج:</span>
+                        <span class="timing-value">${analysis.trade_timing.exit_time}</span>
+                    </div>
+                    <div class="timing-item">
+                        <span class="timing-label">⏱️ المدة:</span>
+                        <span class="timing-value">${analysis.trade_timing.duration} دقيقة</span>
+                    </div>
+                </div>
+                ` : ''}
+
+                ${indicatorsHtml ? `
+                <div class="info-section">
+                    <div class="info-title">📊 قيم المؤشرات</div>
+                    <div class="indicators-list">
+                        ${indicatorsHtml}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${detailsHtml ? `
+                <div class="info-section">
+                    <div class="info-title">📋 تفاصيل التحليل</div>
+                    <div class="details-box">
+                        ${detailsHtml}
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="info-section">
+                    <div class="info-title">💡 السبب الرئيسي</div>
+                    <div class="info-content">${analysis.reason}</div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-title">🕐 آخر شمعة</div>
+                    <div class="info-content">${analysis.last_candle_time}</div>
+                </div>
+            `;
+
+            return card;
+        }
+    </script>
+</body>
+</html>
