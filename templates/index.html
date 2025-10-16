@@ -529,7 +529,7 @@
                         const div = document.createElement('div');
                         div.className = 'checkbox-item';
                         div.innerHTML = `
-                            <input type="checkbox" id="ind_${key}" value="${key}" checked>
+                            <input type="checkbox" id="ind_${key}" value="${key}" >
                             <label for="ind_${key}">${indicators[key]}</label>
                         `;
                         grid.appendChild(div);
@@ -550,7 +550,7 @@
                         const div = document.createElement('div');
                         div.className = 'checkbox-item';
                         div.innerHTML = `
-                            <input type="checkbox" id="pair_${pair}" value="${pair}" checked>
+                            <input type="checkbox" id="pair_${pair}" value="${pair}" >
                             <label for="pair_${pair}">${pair}</label>
                         `;
                         grid.appendChild(div);
