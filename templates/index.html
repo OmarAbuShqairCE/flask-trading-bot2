@@ -547,6 +547,227 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        /* AI Section Styles */
+        .ai-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+        }
+
+        .ai-section .section-title {
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .ai-controls {
+            margin-bottom: 20px;
+        }
+
+        .ai-controls label {
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-controls input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        .ai-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-ai {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-ai:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .ai-status {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .ai-status-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .ai-status-label {
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .ai-status-value {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
+
+        /* AI Prediction Styles */
+        .ai-prediction {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .ai-prediction.negative {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .ai-prediction.neutral {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        .ai-prediction-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .ai-probabilities {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .ai-prob-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .ai-prob-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .ai-prob-value {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .ai-details {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .ai-detail-item {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Performance Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .performance-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .performance-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .performance-metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .metric-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .metric-value {
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -567,6 +788,41 @@
             <div class="form-group">
                 <label for="tradeInterval">⏱️ مدة الصفقة (بالدقائق):</label>
                 <input type="number" id="tradeInterval" value="1" min="1" max="60">
+            </div>
+
+            <!-- قسم الذكاء الاصطناعي -->
+            <div class="ai-section">
+                <div class="section-title">🤖 نظام الذكاء الاصطناعي المتقدم</div>
+                
+                <div class="ai-controls">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="aiEnabled" checked>
+                            تفعيل الذكاء الاصطناعي (AI)
+                        </label>
+                    </div>
+                    
+                    <div class="ai-buttons">
+                        <button class="btn btn-ai" onclick="trainAIModels()">🧠 تدريب النماذج</button>
+                        <button class="btn btn-ai" onclick="toggleAI()">🔄 تبديل AI</button>
+                        <button class="btn btn-ai" onclick="showAIPerformance()">📊 أداء النماذج</button>
+                    </div>
+                </div>
+                
+                <div class="ai-status" id="aiStatus">
+                    <div class="ai-status-item">
+                        <span class="ai-status-label">حالة AI:</span>
+                        <span class="ai-status-value" id="aiStatusValue">جاري التحميل...</span>
+                    </div>
+                    <div class="ai-status-item">
+                        <span class="ai-status-label">النماذج المحملة:</span>
+                        <span class="ai-status-value" id="aiModelsCount">0</span>
+                    </div>
+                    <div class="ai-status-item">
+                        <span class="ai-status-label">دقة النماذج:</span>
+                        <span class="ai-status-value" id="aiAccuracy">غير متاح</span>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
@@ -645,9 +901,12 @@
             loadIndicators();
             loadPairs();
             updateApiStatus();
+            updateAIStatus();
             
             // تحديث حالة API كل ثانية
             setInterval(updateApiStatus, 1000);
+            // تحديث حالة AI كل 5 ثوان
+            setInterval(updateAIStatus, 5000);
         };
 
         function loadIndicators() {
@@ -1073,9 +1332,230 @@
                     <div class="info-title">🕐 آخر شمعة</div>
                     <div class="info-content">${new Date(analysis.last_candle_time).toLocaleString('ar-EG', { timeZone: 'Asia/Gaza' })}</div>
                 </div>
+
+                ${analysis.ai_prediction ? createAIPredictionCard(analysis.ai_prediction) : ''}
             `;
 
             return card;
+        }
+
+        // دوال الذكاء الاصطناعي
+        function updateAIStatus() {
+            fetch('/api/ai/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('aiStatusValue').textContent = data.ai_enabled ? 'مفعل' : 'معطل';
+                        document.getElementById('aiStatusValue').style.background = data.ai_enabled ? 
+                            'rgba(40, 167, 69, 0.8)' : 'rgba(220, 53, 69, 0.8)';
+                        
+                        if (data.metrics) {
+                            document.getElementById('aiModelsCount').textContent = data.metrics.total_models || 0;
+                            
+                            // حساب متوسط الدقة
+                            const modelMetrics = data.metrics.model_metrics || {};
+                            const accuracies = Object.values(modelMetrics).map(m => m.accuracy || 0);
+                            const avgAccuracy = accuracies.length > 0 ? 
+                                (accuracies.reduce((a, b) => a + b, 0) / accuracies.length * 100).toFixed(1) : 0;
+                            document.getElementById('aiAccuracy').textContent = avgAccuracy + '%';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error updating AI status:', error));
+        }
+
+        function trainAIModels() {
+            const selectedPairs = getSelectedPairs();
+            if (selectedPairs.length === 0) {
+                alert('يرجى اختيار زوج واحد على الأقل للتدريب');
+                return;
+            }
+
+            showLoading('تدريب النماذج...', 'جاري تدريب نماذج الذكاء الاصطناعي، قد يستغرق هذا بعض الوقت');
+            updateLoadingProgress(10, 'جاري إرسال طلب التدريب...');
+
+            const data = {
+                pair: selectedPairs[0], // تدريب على أول زوج مختار
+                period: 500
+            };
+
+            fetch('/api/ai/train', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateLoadingProgress(80, 'جاري معالجة النتائج...');
+                
+                if (data.status === 'success') {
+                    updateLoadingProgress(100, 'تم التدريب بنجاح!');
+                    setTimeout(() => {
+                        hideLoading();
+                        alert('تم تدريب النماذج بنجاح!\n' + data.message);
+                        updateAIStatus();
+                    }, 1000);
+                } else {
+                    hideLoading();
+                    alert('خطأ في التدريب: ' + data.message);
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                alert('حدث خطأ في تدريب النماذج');
+            });
+        }
+
+        function toggleAI() {
+            const aiEnabled = document.getElementById('aiEnabled').checked;
+            
+            fetch('/api/ai/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ enabled: aiEnabled })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    updateAIStatus();
+                } else {
+                    alert('خطأ: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ في تغيير حالة AI');
+            });
+        }
+
+        function showAIPerformance() {
+            fetch('/api/ai/performance')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        displayPerformanceModal(data.performance);
+                    } else {
+                        alert('خطأ في الحصول على بيانات الأداء');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('حدث خطأ في الحصول على بيانات الأداء');
+                });
+        }
+
+        function displayPerformanceModal(performance) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            const modelMetrics = performance.model_metrics || {};
+            const metricsHtml = Object.keys(modelMetrics).map(modelName => {
+                const metrics = modelMetrics[modelName];
+                return `
+                    <div class="performance-card">
+                        <h4>${modelName.replace('_', ' ').toUpperCase()}</h4>
+                        <div class="performance-metric">
+                            <span class="metric-label">الدقة:</span>
+                            <span class="metric-value">${(metrics.accuracy * 100).toFixed(2)}%</span>
+                        </div>
+                        ${metrics.loss ? `
+                        <div class="performance-metric">
+                            <span class="metric-label">الخسارة:</span>
+                            <span class="metric-value">${metrics.loss.toFixed(4)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">📊 أداء نماذج الذكاء الاصطناعي</h2>
+                        <span class="close" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</span>
+                    </div>
+                    <div class="performance-grid">
+                        ${metricsHtml}
+                    </div>
+                    <div class="performance-metric">
+                        <span class="metric-label">إجمالي النماذج:</span>
+                        <span class="metric-value">${performance.total_models || 0}</span>
+                    </div>
+                    <div class="performance-metric">
+                        <span class="metric-label">النماذج المحملة:</span>
+                        <span class="metric-value">${performance.models_loaded ? 'نعم' : 'لا'}</span>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // إغلاق النافذة عند النقر خارجها
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            };
+        }
+
+        // تحديث عرض نتائج AI في البطاقات
+        function createAIPredictionCard(aiPrediction) {
+            if (!aiPrediction || !aiPrediction.ensemble_used) {
+                return '';
+            }
+
+            const signal = aiPrediction.signal;
+            const confidence = aiPrediction.confidence;
+            const probabilities = aiPrediction.probabilities || {};
+            
+            let cardClass = 'ai-prediction';
+            if (signal === 'SELL') cardClass += ' negative';
+            else if (signal === 'HOLD') cardClass += ' neutral';
+
+            return `
+                <div class="${cardClass}">
+                    <div class="ai-prediction-title">
+                        🤖 تنبؤ الذكاء الاصطناعي: ${signal} (${confidence}%)
+                    </div>
+                    <div class="ai-probabilities">
+                        <div class="ai-prob-item">
+                            <div class="ai-prob-label">BUY</div>
+                            <div class="ai-prob-value">${probabilities.BUY || 0}%</div>
+                        </div>
+                        <div class="ai-prob-item">
+                            <div class="ai-prob-label">SELL</div>
+                            <div class="ai-prob-value">${probabilities.SELL || 0}%</div>
+                        </div>
+                        <div class="ai-prob-item">
+                            <div class="ai-prob-label">HOLD</div>
+                            <div class="ai-prob-value">${probabilities.HOLD || 0}%</div>
+                        </div>
+                    </div>
+                    ${aiPrediction.chart_patterns && aiPrediction.chart_patterns.patterns_detected ? `
+                    <div class="ai-details">
+                        <div class="ai-detail-item">
+                            <span>📊 الأنماط المكتشفة:</span>
+                            <span>${aiPrediction.chart_patterns.patterns_detected.join(', ')}</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                    ${aiPrediction.reinforcement_learning ? `
+                    <div class="ai-details">
+                        <div class="ai-detail-item">
+                            <span>🧠 التعلم المعزز:</span>
+                            <span>${aiPrediction.reinforcement_learning.signal} (${aiPrediction.reinforcement_learning.confidence.toFixed(1)}%)</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
         }
     </script>
 </body>
