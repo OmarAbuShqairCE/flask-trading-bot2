@@ -7,9 +7,6 @@ from datetime import datetime, timedelta
 import json
 import threading
 import time
-from ta.trend import EMAIndicator, MACD
-from ta.momentum import RSIIndicator
-from ta.volatility import BollingerBands, AverageTrueRange
 from datetime import timezone
 from dotenv import load_dotenv
 import os
@@ -23,6 +20,11 @@ class TradingAnalyzer:
         self.analysis_thread = None
         self.latest_results = {}
         
+        # عداد الطلبات
+        self.api_requests_count = 0
+        self.api_requests_limit = 8  # الحد الأقصى للطلبات في الدقيقة
+        self.last_reset_time = datetime.now()
+        
         # جميع أزواج العملات المتاحة
         self.available_pairs = [
             'EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CHF',
@@ -31,42 +33,188 @@ class TradingAnalyzer:
             'AUD/CAD', 'NZD/JPY', 'CHF/JPY', 'EUR/NZD', 'GBP/NZD'
         ]
         
-        # المؤشرات المتاحة
+        # المؤشرات المتاحة حسب المجموعات
         self.available_indicators = {
-            'EMA50': 'EMA50',
-            'EMA200': 'EMA200',
-            'RSI': 'RSI',
-            'MACD': 'MACD',
-            'BB': 'Bollinger Bands',
-            'ATR': 'ATR'
+            # Trend Indicators (مؤشرات الاتجاه)
+            'trend': {
+                'sma': 'Simple Moving Average',
+                'ema': 'Exponential Moving Average', 
+                'wma': 'Weighted Moving Average',
+                'dema': 'Double Exponential Moving Average',
+                'tema': 'Triple Exponential Moving Average',
+                'kama': 'Kaufman Adaptive Moving Average',
+                'hma': 'Hull Moving Average',
+                't3': 'T3 Moving Average'
+            },
+            # Momentum Indicators (مؤشرات الزخم)
+            'momentum': {
+                'rsi': 'Relative Strength Index',
+                'stoch': 'Stochastic Oscillator',
+                'stochrsi': 'Stochastic RSI',
+                'willr': 'Williams %R',
+                'macd': 'MACD',
+                'ppo': 'Percentage Price Oscillator',
+                'adx': 'Average Directional Index',
+                'cci': 'Commodity Channel Index',
+                'mom': 'Momentum',
+                'roc': 'Rate of Change'
+            },
+            # Volatility Indicators (مؤشرات التذبذب)
+            'volatility': {
+                'bbands': 'Bollinger Bands',
+                'atr': 'Average True Range',
+                'stdev': 'Standard Deviation',
+                'donchian': 'Donchian Channels'
+            },
+            # Volume Indicators (مؤشرات الحجم)
+            'volume': {
+                'obv': 'On Balance Volume',
+                'cmf': 'Chaikin Money Flow',
+                'ad': 'Accumulation/Distribution',
+                'mfi': 'Money Flow Index',
+                'emv': 'Ease of Movement',
+                'fi': 'Force Index'
+            },
+            # Price Indicators (مؤشرات السعر)
+            'price': {
+                'avgprice': 'Average Price',
+                'medprice': 'Median Price',
+                'typprice': 'Typical Price',
+                'wcprice': 'Weighted Close Price'
+            },
+            # Misc / Other Indicators (مؤشرات أخرى)
+            'misc': {
+                'sar': 'Parabolic SAR',
+                'ultosc': 'Ultimate Oscillator',
+                'tsi': 'True Strength Index'
+            }
         }
     
     def set_api_key(self, api_key):
         """تعيين مفتاح API"""
         self.api_key = api_key
     
+    def _check_api_limit(self):
+        """التحقق من حد الطلبات"""
+        current_time = datetime.now()
+        
+        # إعادة تعيين العداد كل دقيقة
+        if (current_time - self.last_reset_time).seconds >= 60:
+            self.api_requests_count = 0
+            self.last_reset_time = current_time
+        
+        return self.api_requests_count < self.api_requests_limit
+    
+    def _increment_api_count(self):
+        """زيادة عداد الطلبات"""
+        self.api_requests_count += 1
+    
+    def get_api_status(self):
+        """الحصول على حالة API"""
+        current_time = datetime.now()
+        time_remaining = 60 - (current_time - self.last_reset_time).seconds
+        
+        return {
+            'requests_used': self.api_requests_count,
+            'requests_limit': self.api_requests_limit,
+            'requests_remaining': self.api_requests_limit - self.api_requests_count,
+            'time_remaining': max(0, time_remaining),
+            'can_make_request': self._check_api_limit()
+        }
+    
    
     #---------------------------------------------------
-    def fetch_data(self, pair, outputsize=250):
-        """جلب بيانات من API مع معالجة الأخطاء"""
+    def fetch_indicator_data(self, pair, indicator, interval='1min', **params):
+        """جلب بيانات مؤشر من API TwelveData"""
         try:
+            # التحقق من حد الطلبات
+            if not self._check_api_limit():
+                print(f"تم الوصول للحد الأقصى من الطلبات ({self.api_requests_limit})")
+                return None
+            
+            # إعداد المعاملات الأساسية
+            api_params = {
+                'symbol': pair,
+                'interval': interval,
+                'apikey': self.api_key,
+                **params
+            }
+            
+            # بناء URL المؤشر
+            indicator_url = f"https://api.twelvedata.com/{indicator}"
+            
+            # زيادة عداد الطلبات
+            self._increment_api_count()
+            print(f"طلب API #{self.api_requests_count}/{self.api_requests_limit}: {indicator} لـ {pair}")
+            
+            response = requests.get(indicator_url, params=api_params, timeout=10)
+            
+            if response.status_code != 200:
+                print(f"خطأ HTTP عند جلب {indicator} لـ {pair}: حالة {response.status_code}")
+                return None
+            
+            data = response.json()
+            
+            # تحقق من وجود خطأ في API
+            if 'status' in data and data['status'] == 'error':
+                error_msg = data.get('message', 'خطأ غير معروف')
+                print(f"خطأ من API عند جلب {indicator} لـ {pair}: {error_msg}")
+                
+                # إذا كان الخطأ بسبب استنفاد الرصيد، انتظر دقيقة
+                if 'API credits' in error_msg or 'limit' in error_msg:
+                    print("انتظار 60 ثانية لتجنب استنفاد الرصيد...")
+                    import time
+                    time.sleep(60)
+                
+                return None
+            
+            if 'values' not in data or not data['values']:
+                print(f"لا توجد بيانات لـ {indicator} لـ {pair}")
+                return None
+            
+            # طباعة هيكل البيانات للتحقق
+            if data['values'] and len(data['values']) > 0:
+                print(f"هيكل بيانات {indicator}: {list(data['values'][0].keys())}")
+            
+            return data['values']
+            
+        except requests.exceptions.RequestException as e:
+            print(f"خطأ في الاتصال عند جلب {indicator} لـ {pair}: {str(e)}")
+            return None
+        except json.JSONDecodeError as e:
+            print(f"خطأ في فك JSON عند جلب {indicator} لـ {pair}: {str(e)}")
+            return None
+        except Exception as e:
+            print(f"خطأ غير متوقع عند جلب {indicator} لـ {pair}: {str(e)}")
+            return None
+
+    def fetch_price_data(self, pair, interval='1min', outputsize=250):
+        """جلب بيانات الأسعار الأساسية"""
+        try:
+            # التحقق من حد الطلبات
+            if not self._check_api_limit():
+                print(f"تم الوصول للحد الأقصى من الطلبات ({self.api_requests_limit})")
+                return None
+            
             params = {
                 'symbol': pair,
-                'interval': '1min',
+                'interval': interval,
                 'apikey': self.api_key,
                 'outputsize': outputsize
             }
+            
+            # زيادة عداد الطلبات
+            self._increment_api_count()
+            print(f"طلب API #{self.api_requests_count}/{self.api_requests_limit}: أسعار {pair}")
         
             response = requests.get(self.base_url, params=params, timeout=10)
         
-            # تحقق من حالة الاستجابة
             if response.status_code != 200:
                 print(f"خطأ HTTP عند جلب {pair}: حالة {response.status_code}")
                 return None
         
             data = response.json()
         
-        # تحقق إذا كانت هناك رسالة خطأ في الـ API
             if 'status' in data and data['status'] == 'error':
                 print(f"خطأ من API عند جلب {pair}: {data.get('message', 'خطأ غير معروف')}")
                 return None
@@ -76,7 +224,7 @@ class TradingAnalyzer:
                 return None
         
             df = pd.DataFrame(data['values'])
-            df['datetime'] = pd.to_datetime(df['datetime'])
+            df['datetime'] = pd.to_datetime(df['datetime'], utc=True) + timedelta(hours=2)  # Convert to Palestine time (UTC+2)
             df = df.sort_values('datetime')
         
             for col in ['open', 'high', 'low', 'close', 'volume']:
@@ -86,7 +234,6 @@ class TradingAnalyzer:
             return df
     
         except requests.exceptions.RequestException as e:
-        # مشاكل الشبكة أو انتهاء المهلة
             print(f"خطأ في الاتصال عند جلب {pair}: {str(e)}")
             return None
         except json.JSONDecodeError as e:
@@ -97,50 +244,79 @@ class TradingAnalyzer:
             return None
 
     #------------------------------------------------------
-    def calculate_indicators(self, df, selected_indicators):
-        """حساب المؤشرات المختارة فقط"""
-        if df is None or len(df) < 200:
-            return None
-            
-        df = df.copy()
+    def fetch_indicators_data(self, pair, selected_indicators, interval='1min'):
+        """جلب بيانات المؤشرات المختارة من API"""
+        indicators_data = {}
         
-        # EMA50
-        if 'EMA50' in selected_indicators:
-            ema50 = EMAIndicator(close=df['close'], window=50)
-            df['EMA50'] = ema50.ema_indicator()
+        for category, indicators in selected_indicators.items():
+            if not indicators:  # تخطي المجموعات الفارغة
+                continue
+                
+            for indicator in indicators:
+                try:
+                    # إعداد المعاملات الخاصة بكل مؤشر
+                    params = self._get_indicator_params(indicator)
+                    
+                    # جلب بيانات المؤشر
+                    data = self.fetch_indicator_data(pair, indicator, interval, **params)
+                    
+                    if data:
+                        indicators_data[indicator] = data
+                        print(f"تم جلب {indicator} لـ {pair}")
+                    else:
+                        print(f"فشل جلب {indicator} لـ {pair}")
+                    
+                    # تأخير لتجنب استنفاد رصيد API (8 طلبات في الدقيقة)
+                    import time
+                    time.sleep(8)  # 8 ثواني بين كل طلب
+                        
+                except Exception as e:
+                    print(f"خطأ في جلب {indicator} لـ {pair}: {str(e)}")
+                    continue
         
-        # EMA200
-        if 'EMA200' in selected_indicators:
-            ema200 = EMAIndicator(close=df['close'], window=200)
-            df['EMA200'] = ema200.ema_indicator()
+        return indicators_data
+
+    def _get_indicator_params(self, indicator):
+        """إرجاع المعاملات الافتراضية لكل مؤشر"""
+        default_params = {
+            'sma': {'time_period': 20},
+            'ema': {'time_period': 20},
+            'wma': {'time_period': 20},
+            'dema': {'time_period': 20},
+            'tema': {'time_period': 20},
+            'kama': {'time_period': 20},
+            'hma': {'time_period': 20},
+            't3': {'time_period': 20},
+            'rsi': {'time_period': 14},
+            'stoch': {'time_period': 14},
+            'stochrsi': {'time_period': 14},
+            'willr': {'time_period': 14},
+            'macd': {'time_period': 14},
+            'ppo': {'time_period': 14},
+            'adx': {'time_period': 14},
+            'cci': {'time_period': 14},
+            'mom': {'time_period': 14},
+            'roc': {'time_period': 14},
+            'bbands': {'time_period': 20, 'series_type': 'close'},
+            'atr': {'time_period': 14},
+            'stdev': {'time_period': 20},
+            'donchian': {'time_period': 20},
+            'obv': {},
+            'cmf': {'time_period': 20},
+            'ad': {},
+            'mfi': {'time_period': 14},
+            'emv': {},
+            'fi': {'time_period': 14},
+            'avgprice': {},
+            'medprice': {},
+            'typprice': {},
+            'wcprice': {},
+            'sar': {'time_period': 14},
+            'ultosc': {'time_period': 14},
+            'tsi': {'time_period': 14}
+        }
         
-        # RSI
-        if 'RSI' in selected_indicators:
-            rsi = RSIIndicator(close=df['close'], window=14)
-            df['RSI'] = rsi.rsi()
-        
-        # MACD
-        if 'MACD' in selected_indicators:
-            macd = MACD(close=df['close'])
-            df['MACD'] = macd.macd()
-            df['MACD_signal'] = macd.macd_signal()
-            df['MACD_diff'] = macd.macd_diff()
-        
-        # Bollinger Bands
-        if 'BB' in selected_indicators:
-            bb = BollingerBands(close=df['close'], window=20, window_dev=2)
-            df['BB_upper'] = bb.bollinger_hband()
-            df['BB_middle'] = bb.bollinger_mavg()
-            df['BB_lower'] = bb.bollinger_lband()
-            df['BB_width'] = bb.bollinger_wband()
-            df['BB_pband'] = bb.bollinger_pband()
-        
-        # ATR
-        if 'ATR' in selected_indicators:
-            atr = AverageTrueRange(high=df['high'], low=df['low'], close=df['close'], window=14)
-            df['ATR'] = atr.average_true_range()
-        
-        return df
+        return default_params.get(indicator, {})
 
     @staticmethod
     def safe_float(val):
@@ -151,215 +327,312 @@ class TradingAnalyzer:
         except:
             return None
 
-    def analyze_ema(self, df, latest, prev):
-        """تحليل EMA"""
+    def _get_indicator_value(self, data, keys):
+        """استخراج قيمة المؤشر من البيانات مع محاولة مفاتيح متعددة"""
+        if not data or len(data) == 0:
+            return None
+            
+        for key in keys:
+            if key in data[0]:
+                try:
+                    return float(data[0][key])
+                except:
+                    continue
+        return None
+
+    def _get_indicator_values(self, data, keys, count=2):
+        """استخراج قيم متعددة من المؤشر"""
+        if not data or len(data) < count:
+            return None
+            
+        values = []
+        for i in range(count):
+            for key in keys:
+                if key in data[i]:
+                    try:
+                        values.append(float(data[i][key]))
+                        break
+                    except:
+                        continue
+            else:
+                return None
+        return values
+
+    def analyze_trend_indicators(self, indicators_data, price_data):
+        """تحليل مؤشرات الاتجاه"""
         signals = []
         details = []
         
-        if 'EMA50' in df.columns and 'EMA200' in df.columns:
-            ema50 = latest['EMA50']
-            ema200 = latest['EMA200']
-            price = latest['close']
+        if not indicators_data:
+            return signals, details
             
-            # Golden Cross / Death Cross
-            if latest['EMA50'] > latest['EMA200'] and prev['EMA50'] <= prev['EMA200']:
-                signals.append(1)
-                details.append("✅ Golden Cross: EMA50 عبر فوق EMA200 (إشارة صعود قوية جداً)")
-            elif latest['EMA50'] < latest['EMA200'] and prev['EMA50'] >= prev['EMA200']:
-                signals.append(-1)
-                details.append("❌ Death Cross: EMA50 عبر تحت EMA200 (إشارة هبوط قوية جداً)")
-            
-            # موقع السعر من EMA
-            if price > ema50 > ema200:
-                signals.append(0.7)
-                details.append(f"📈 السعر فوق EMA50 و EMA200 (اتجاه صعودي قوي)")
-            elif price < ema50 < ema200:
-                signals.append(-0.7)
-                details.append(f"📉 السعر تحت EMA50 و EMA200 (اتجاه هبوطي قوي)")
-            elif price > ema50 and ema50 < ema200:
-                signals.append(0.4)
-                details.append(f"📊 السعر فوق EMA50 لكن تحت EMA200 (اتجاه صعودي ضعيف)")
-            elif price < ema50 and ema50 > ema200:
-                signals.append(-0.4)
-                details.append(f"📊 السعر تحت EMA50 لكن فوق EMA200 (اتجاه هبوطي ضعيف)")
-        
-        elif 'EMA50' in df.columns:
-            if latest['close'] > latest['EMA50'] and prev['close'] <= prev['EMA50']:
-                signals.append(0.8)
-                details.append("✅ السعر عبر فوق EMA50 (إشارة صعود)")
-            elif latest['close'] < latest['EMA50'] and prev['close'] >= prev['EMA50']:
-                signals.append(-0.8)
-                details.append("❌ السعر عبر تحت EMA50 (إشارة هبوط)")
-            elif latest['close'] > latest['EMA50']:
-                signals.append(0.5)
-                details.append(f"📈 السعر فوق EMA50")
-            else:
-                signals.append(-0.5)
-                details.append(f"📉 السعر تحت EMA50")
+        # تحليل Moving Averages
+        for ma_type in ['sma', 'ema', 'wma', 'dema', 'tema', 'kama', 'hma', 't3']:
+            if ma_type in indicators_data:
+                ma_data = indicators_data[ma_type]
+                ma_values = self._get_indicator_values(ma_data, ['value', ma_type, 'sma', 'ema'])
+                
+                if ma_values and len(ma_values) >= 2:
+                    current_ma = ma_values[0]
+                    prev_ma = ma_values[1]
+                    current_price = float(price_data[0]['close'])
+                    
+                    # اتجاه المتوسط المتحرك
+                    if current_ma > prev_ma:
+                        signals.append(0.6)
+                        details.append(f"📈 {ma_type.upper()} صاعد ({current_ma:.5f})")
+                    elif current_ma < prev_ma:
+                        signals.append(-0.6)
+                        details.append(f"📉 {ma_type.upper()} هابط ({current_ma:.5f})")
+                    
+                    # موقع السعر من المتوسط
+                    if current_price > current_ma:
+                        signals.append(0.4)
+                        details.append(f"📊 السعر فوق {ma_type.upper()}")
+                    else:
+                        signals.append(-0.4)
+                        details.append(f"📊 السعر تحت {ma_type.upper()}")
+                else:
+                    print(f"لا يمكن استخراج قيم {ma_type}")
         
         return signals, details
 
-    def analyze_rsi(self, df, latest, prev):
-        """تحليل RSI"""
+    def analyze_momentum_indicators(self, indicators_data, price_data):
+        """تحليل مؤشرات الزخم"""
         signals = []
         details = []
         
-        if 'RSI' in df.columns:
-            rsi = latest['RSI']
-            prev_rsi = prev['RSI']
+        if not indicators_data:
+            return signals, details
             
-            # تشبع شراء/بيع
-            if rsi < 30:
-                if rsi < 20:
-                    signals.append(1)
-                    details.append(f"✅ RSI={rsi:.1f} (تشبع بيع شديد - فرصة شراء قوية)")
-                else:
-                    signals.append(0.7)
-                    details.append(f"✅ RSI={rsi:.1f} (تشبع بيع - فرصة شراء)")
-            elif rsi > 70:
-                if rsi > 80:
-                    signals.append(-1)
-                    details.append(f"❌ RSI={rsi:.1f} (تشبع شراء شديد - فرصة بيع قوية)")
-                else:
-                    signals.append(-0.7)
-                    details.append(f"❌ RSI={rsi:.1f} (تشبع شراء - فرصة بيع)")
+        # تحليل RSI
+        if 'rsi' in indicators_data:
+            rsi_data = indicators_data['rsi']
+            rsi_values = self._get_indicator_values(rsi_data, ['value', 'rsi'])
             
-            # اختراق مستويات
-            elif rsi > 50 and prev_rsi <= 50:
-                signals.append(0.6)
-                details.append(f"📈 RSI={rsi:.1f} (اختراق فوق 50 - زخم صعودي)")
-            elif rsi < 50 and prev_rsi >= 50:
-                signals.append(-0.6)
-                details.append(f"📉 RSI={rsi:.1f} (كسر تحت 50 - زخم هبوطي)")
-            
-            # زخم عام
-            elif rsi > 55:
-                signals.append(0.4)
-                details.append(f"📊 RSI={rsi:.1f} (زخم إيجابي)")
-            elif rsi < 45:
-                signals.append(-0.4)
-                details.append(f"📊 RSI={rsi:.1f} (زخم سلبي)")
-            else:
-                signals.append(0)
-                details.append(f"⚪ RSI={rsi:.1f} (محايد)")
-        
-        return signals, details
-
-    def analyze_macd(self, df, latest, prev):
-        """تحليل MACD"""
-        signals = []
-        details = []
-        
-        if 'MACD' in df.columns:
-            macd = latest['MACD']
-            signal = latest['MACD_signal']
-            diff = latest['MACD_diff']
-            
-            prev_macd = prev['MACD']
-            prev_signal = prev['MACD_signal']
-            prev_diff = prev['MACD_diff']
-            
-            # تقاطع MACD مع خط الإشارة
-            if macd > signal and prev_macd <= prev_signal:
-                signals.append(1)
-                details.append(f"✅ MACD عبر فوق خط الإشارة (صعودي قوي)")
-            elif macd < signal and prev_macd >= prev_signal:
-                signals.append(-1)
-                details.append(f"❌ MACD عبر تحت خط الإشارة (هبوطي قوي)")
-            
-            # قوة الاتجاه من histogram
-            elif diff > 0:
-                if diff > prev_diff:
+            if rsi_values and len(rsi_values) >= 2:
+                current_rsi = rsi_values[0]
+                prev_rsi = rsi_values[1]
+                
+                # تشبع شراء/بيع
+                if current_rsi < 30:
+                    if current_rsi < 20:
+                        signals.append(1)
+                        details.append(f"✅ RSI={current_rsi:.1f} (تشبع بيع شديد)")
+                    else:
+                        signals.append(0.7)
+                        details.append(f"✅ RSI={current_rsi:.1f} (تشبع بيع)")
+                elif current_rsi > 70:
+                    if current_rsi > 80:
+                        signals.append(-1)
+                        details.append(f"❌ RSI={current_rsi:.1f} (تشبع شراء شديد)")
+                    else:
+                        signals.append(-0.7)
+                        details.append(f"❌ RSI={current_rsi:.1f} (تشبع شراء)")
+                elif current_rsi > 50 and prev_rsi <= 50:
                     signals.append(0.6)
-                    details.append(f"📈 MACD إيجابي ومتزايد (قوة={abs(diff):.5f})")
-                else:
-                    signals.append(0.3)
-                    details.append(f"📊 MACD إيجابي (قوة={abs(diff):.5f})")
-            else:
-                if diff < prev_diff:
+                    details.append(f"📈 RSI={current_rsi:.1f} (زخم صعودي)")
+                elif current_rsi < 50 and prev_rsi >= 50:
                     signals.append(-0.6)
-                    details.append(f"📉 MACD سلبي ومتناقص (قوة={abs(diff):.5f})")
+                    details.append(f"📉 RSI={current_rsi:.1f} (زخم هبوطي)")
+            else:
+                print("لا يمكن استخراج قيم RSI")
+        
+        # تحليل MACD
+        if 'macd' in indicators_data:
+            macd_data = indicators_data['macd']
+            macd_values = self._get_indicator_values(macd_data, ['value', 'macd'])
+            
+            if macd_values and len(macd_values) >= 2:
+                current_macd = macd_values[0]
+                prev_macd = macd_values[1]
+                current_signal = self._get_indicator_value(macd_data, ['signal', 'macd_signal'])
+                prev_signal = self._get_indicator_value(macd_data[1:], ['signal', 'macd_signal']) if len(macd_data) > 1 else 0
+                
+                # تقاطع MACD مع خط الإشارة
+                if current_macd > current_signal and prev_macd <= prev_signal:
+                    signals.append(1)
+                    details.append(f"✅ MACD عبر فوق خط الإشارة")
+                elif current_macd < current_signal and prev_macd >= prev_signal:
+                    signals.append(-1)
+                    details.append(f"❌ MACD عبر تحت خط الإشارة")
+                elif current_macd > current_signal:
+                    signals.append(0.5)
+                    details.append(f"📈 MACD إيجابي")
+                else:
+                    signals.append(-0.5)
+                    details.append(f"📉 MACD سلبي")
+        
+        # تحليل Stochastic
+        if 'stoch' in indicators_data:
+            stoch_data = indicators_data['stoch']
+            if len(stoch_data) >= 1 and ('k' in stoch_data[0] or 'value' in stoch_data[0]):
+                current_k = float(stoch_data[0].get('k', stoch_data[0].get('value', 0)))
+                current_d = float(stoch_data[0].get('d', 0))
+                
+                if current_k < 20:
+                    signals.append(0.7)
+                    details.append(f"✅ Stochastic={current_k:.1f} (تشبع بيع)")
+                elif current_k > 80:
+                    signals.append(-0.7)
+                    details.append(f"❌ Stochastic={current_k:.1f} (تشبع شراء)")
+        
+        return signals, details
+
+    def analyze_volatility_indicators(self, indicators_data, price_data):
+        """تحليل مؤشرات التذبذب"""
+        signals = []
+        details = []
+        
+        if not indicators_data:
+            return signals, details
+            
+        # تحليل Bollinger Bands
+        if 'bbands' in indicators_data:
+            bb_data = indicators_data['bbands']
+            if len(bb_data) >= 1 and ('upper_band' in bb_data[0] or 'value' in bb_data[0]):
+                current_price = float(price_data[0]['close'])
+                upper_band = float(bb_data[0].get('upper_band', bb_data[0].get('value', 0)))
+                middle_band = float(bb_data[0].get('middle_band', 0))
+                lower_band = float(bb_data[0].get('lower_band', 0))
+                
+                # موقع السعر من البولينجر
+                if current_price >= upper_band:
+                    signals.append(-0.8)
+                    details.append(f"❌ السعر عند الحد العلوي - احتمال ارتداد")
+                elif current_price <= lower_band:
+                    signals.append(0.8)
+                    details.append(f"✅ السعر عند الحد السفلي - احتمال ارتداد")
+                elif current_price > middle_band:
+                    signals.append(0.3)
+                    details.append(f"📊 السعر في المنطقة العليا")
                 else:
                     signals.append(-0.3)
-                    details.append(f"📊 MACD سلبي (قوة={abs(diff):.5f})")
+                    details.append(f"📊 السعر في المنطقة السفلى")
+        
+        # تحليل ATR
+        if 'atr' in indicators_data:
+            atr_data = indicators_data['atr']
+            if len(atr_data) >= 2 and 'value' in atr_data[0] and 'value' in atr_data[1]:
+                current_atr = float(atr_data[0]['value'])
+                prev_atr = float(atr_data[1]['value'])
+                atr_change = ((current_atr - prev_atr) / prev_atr * 100) if prev_atr != 0 else 0
+                
+                if atr_change > 10:
+                    details.append(f"⚠️ ATR={current_atr:.5f} (تقلب متزايد +{atr_change:.1f}%)")
+                elif atr_change < -10:
+                    details.append(f"📊 ATR={current_atr:.5f} (تقلب متناقص {atr_change:.1f}%)")
+                else:
+                    details.append(f"📊 ATR={current_atr:.5f} (تقلب مستقر)")
         
         return signals, details
 
-    def analyze_bollinger(self, df, latest, prev):
-        """تحليل Bollinger Bands"""
+    def analyze_volume_indicators(self, indicators_data, price_data):
+        """تحليل مؤشرات الحجم"""
         signals = []
         details = []
         
-        if 'BB_upper' in df.columns:
-            price = latest['close']
-            upper = latest['BB_upper']
-            middle = latest['BB_middle']
-            lower = latest['BB_lower']
-            bb_pband = latest['BB_pband']
-            width = latest['BB_width']
+        if not indicators_data:
+            return signals, details
             
-            # موقع السعر من البولينجر
-            if price >= upper:
-                signals.append(-0.8)
-                details.append(f"❌ السعر عند/فوق الحد العلوي ({bb_pband:.0f}%) - احتمال ارتداد هبوطي")
-            elif price <= lower:
-                signals.append(0.8)
-                details.append(f"✅ السعر عند/تحت الحد السفلي ({bb_pband:.0f}%) - احتمال ارتداد صعودي")
-            
-            # اختراق من خارج الحدود
-            elif prev['close'] >= prev['BB_upper'] and price < upper:
-                signals.append(-0.5)
-                details.append(f"📉 ارتداد من الحد العلوي ({bb_pband:.0f}%)")
-            elif prev['close'] <= prev['BB_lower'] and price > lower:
-                signals.append(0.5)
-                details.append(f"📈 ارتداد من الحد السفلي ({bb_pband:.0f}%)")
-            
-            # موقع السعر النسبي
-            elif bb_pband > 70:
-                signals.append(-0.4)
-                details.append(f"📊 السعر في المنطقة العليا ({bb_pband:.0f}%)")
-            elif bb_pband < 30:
-                signals.append(0.4)
-                details.append(f"📊 السعر في المنطقة السفلى ({bb_pband:.0f}%)")
-            else:
-                signals.append(0)
-                details.append(f"⚪ السعر في الوسط ({bb_pband:.0f}%)")
-            
-            # تحليل عرض البولينجر (التقلب)
-            if width < 0.01:
-                details.append(f"⚠️ البولينجر ضيق جداً (تقلب منخفض - توقع حركة قوية)")
-            elif width > 0.05:
-                details.append(f"⚠️ البولينجر واسع (تقلب عالي)")
+        # تحليل Money Flow Index
+        if 'mfi' in indicators_data:
+            mfi_data = indicators_data['mfi']
+            if len(mfi_data) >= 1 and 'value' in mfi_data[0]:
+                current_mfi = float(mfi_data[0]['value'])
+                
+                if current_mfi < 20:
+                    signals.append(0.7)
+                    details.append(f"✅ MFI={current_mfi:.1f} (تشبع بيع)")
+                elif current_mfi > 80:
+                    signals.append(-0.7)
+                    details.append(f"❌ MFI={current_mfi:.1f} (تشبع شراء)")
+                elif current_mfi > 50:
+                    signals.append(0.3)
+                    details.append(f"📈 MFI={current_mfi:.1f} (زخم إيجابي)")
+                else:
+                    signals.append(-0.3)
+                    details.append(f"📉 MFI={current_mfi:.1f} (زخم سلبي)")
+        
+        # تحليل Chaikin Money Flow
+        if 'cmf' in indicators_data:
+            cmf_data = indicators_data['cmf']
+            if len(cmf_data) >= 1 and 'value' in cmf_data[0]:
+                current_cmf = float(cmf_data[0]['value'])
+                
+                if current_cmf > 0.1:
+                    signals.append(0.5)
+                    details.append(f"📈 CMF={current_cmf:.3f} (تدفق أموال إيجابي)")
+                elif current_cmf < -0.1:
+                    signals.append(-0.5)
+                    details.append(f"📉 CMF={current_cmf:.3f} (تدفق أموال سلبي)")
         
         return signals, details
 
-    def analyze_atr(self, df, latest, prev):
-        """تحليل ATR"""
+    def analyze_price_indicators(self, indicators_data, price_data):
+        """تحليل مؤشرات السعر"""
         signals = []
         details = []
         
-        if 'ATR' in df.columns:
-            atr = latest['ATR']
-            prev_atr = prev['ATR']
-            atr_change = ((atr - prev_atr) / prev_atr * 100) if prev_atr != 0 else 0
+        if not indicators_data:
+            return signals, details
             
-            # ATR لا يعطي إشارة اتجاه ولكن يعطي قوة التقلب
-            if atr_change > 10:
-                details.append(f"⚠️ ATR={atr:.5f} (تقلب متزايد +{atr_change:.1f}% - حذر)")
-            elif atr_change < -10:
-                details.append(f"📊 ATR={atr:.5f} (تقلب متناقص {atr_change:.1f}%)")
-            else:
-                details.append(f"📊 ATR={atr:.5f} (تقلب مستقر)")
+        # تحليل Average Price
+        if 'avgprice' in indicators_data:
+            avgprice_data = indicators_data['avgprice']
+            if len(avgprice_data) >= 1:
+                current_avg = float(avgprice_data[0]['value'])
+                current_close = float(price_data[0]['close'])
+                
+                if current_close > current_avg:
+                    signals.append(0.4)
+                    details.append(f"📈 السعر فوق المتوسط")
+                else:
+                    signals.append(-0.4)
+                    details.append(f"📉 السعر تحت المتوسط")
+        
+        return signals, details
+
+    def analyze_misc_indicators(self, indicators_data, price_data):
+        """تحليل المؤشرات الأخرى"""
+        signals = []
+        details = []
+        
+        if not indicators_data:
+            return signals, details
             
-            # لا نضيف signal لأن ATR مؤشر تقلب وليس اتجاه
-            signals.append(0)
+        # تحليل Parabolic SAR
+        if 'sar' in indicators_data:
+            sar_data = indicators_data['sar']
+            if len(sar_data) >= 1:
+                current_sar = float(sar_data[0]['value'])
+                current_close = float(price_data[0]['close'])
+                
+                if current_close > current_sar:
+                    signals.append(0.6)
+                    details.append(f"📈 SAR={current_sar:.5f} (إشارة صعود)")
+                else:
+                    signals.append(-0.6)
+                    details.append(f"📉 SAR={current_sar:.5f} (إشارة هبوط)")
+        
+        # تحليل Ultimate Oscillator
+        if 'ultosc' in indicators_data:
+            ultosc_data = indicators_data['ultosc']
+            if len(ultosc_data) >= 1:
+                current_ultosc = float(ultosc_data[0]['value'])
+                
+                if current_ultosc < 30:
+                    signals.append(0.7)
+                    details.append(f"✅ Ultimate={current_ultosc:.1f} (تشبع بيع)")
+                elif current_ultosc > 70:
+                    signals.append(-0.7)
+                    details.append(f"❌ Ultimate={current_ultosc:.1f} (تشبع شراء)")
         
         return signals, details
     #--------------------------------------------------
-    def generate_signal(self, df, selected_indicators, strategy='default'):
-        """توليد إشارة التداول بناءً على الاستراتيجية المختارة"""
-        # نتأكد من وجود 200 شمعة على الأقل
-        if df is None or len(df) < 200:
+    def generate_signal(self, indicators_data, price_data, selected_indicators):
+        """توليد إشارة التداول"""
+        if not indicators_data or not price_data:
             return {
                 'signal': 'HOLD',
                 'confidence': 0,
@@ -367,104 +640,45 @@ class TradingAnalyzer:
                 'indicators': {}
             }
 
-        latest = df.iloc[-1]
-        prev = df.iloc[-2]
-
         all_signals = []
         all_details = []
 
-        # تحليل كل مؤشر مختار على البيانات الكاملة
-        if 'EMA50' in selected_indicators or 'EMA200' in selected_indicators:
-            signals, details = self.analyze_ema(df, latest, prev)
-            all_signals.extend(signals)
-            all_details.extend(details)
+        # تحليل كل مجموعة مؤشرات
+        for category, indicators in selected_indicators.items():
+            if not indicators:  # تخطي المجموعات الفارغة
+                continue
 
-        if 'RSI' in selected_indicators:
-            signals, details = self.analyze_rsi(df, latest, prev)
-            all_signals.extend(signals)
-            all_details.extend(details)
+            category_indicators = {ind: indicators_data.get(ind, []) for ind in indicators if ind in indicators_data}
 
-        if 'MACD' in selected_indicators:
-            signals, details = self.analyze_macd(df, latest, prev)
-            all_signals.extend(signals)
-            all_details.extend(details)
+            if category == 'trend':
+                signals, details = self.analyze_trend_indicators(category_indicators, price_data)
+                all_signals.extend(signals)
+                all_details.extend(details)
+            elif category == 'momentum':
+                signals, details = self.analyze_momentum_indicators(category_indicators, price_data)
+                all_signals.extend(signals)
+                all_details.extend(details)
+            elif category == 'volatility':
+                signals, details = self.analyze_volatility_indicators(category_indicators, price_data)
+                all_signals.extend(signals)
+                all_details.extend(details)
+            elif category == 'volume':
+                signals, details = self.analyze_volume_indicators(category_indicators, price_data)
+                all_signals.extend(signals)
+                all_details.extend(details)
+            elif category == 'price':
+                signals, details = self.analyze_price_indicators(category_indicators, price_data)
+                all_signals.extend(signals)
+                all_details.extend(details)
+            elif category == 'misc':
+                signals, details = self.analyze_misc_indicators(category_indicators, price_data)
+                all_signals.extend(signals)
+                all_details.extend(details)
 
-        if 'BB' in selected_indicators:
-            signals, details = self.analyze_bollinger(df, latest, prev)
-            all_signals.extend(signals)
-            all_details.extend(details)
-
-        if 'ATR' in selected_indicators:
-            signals, details = self.analyze_atr(df, latest, prev)
-            all_signals.extend(signals)
-            all_details.extend(details)
-
-        # تطبيق منطق الاستراتيجية المختارة
-        if strategy == 'conservative':
-            # استراتيجية محافظة - تحتاج إشارات أقوى
-            threshold = 0.6
-            confidence_multiplier = 0.8
-        elif strategy == 'aggressive':
-            # استراتيجية عدوانية - تتفاعل مع إشارات أضعف
-            threshold = 0.2
-            confidence_multiplier = 1.2
-        elif strategy == 'trend_following':
-            # متابعة الاتجاه - التركيز على EMA و MACD
-            ema_signals = []
-            macd_signals = []
-            if 'EMA50' in selected_indicators or 'EMA200' in selected_indicators:
-                ema_signals, _ = self.analyze_ema(df, latest, prev)
-            if 'MACD' in selected_indicators:
-                macd_signals, _ = self.analyze_macd(df, latest, prev)
-
-            # المتوسط المرجح للاتجاه
-            trend_signals = ema_signals + macd_signals
-            if trend_signals:
-                avg_signal = np.mean(trend_signals) * 1.2  # تعزيز إشارات الاتجاه
-            else:
-                avg_signal = np.mean(all_signals) if all_signals else 0
-
-            threshold = 0.4
-            confidence_multiplier = 1.0
-        elif strategy == 'mean_reversion':
-            # العودة للوسط - التركيز على RSI و Bollinger Bands
-            reversion_signals = []
-            if 'RSI' in selected_indicators:
-                rsi_signals, _ = self.analyze_rsi(df, latest, prev)
-                reversion_signals.extend(rsi_signals)
-            if 'BB' in selected_indicators:
-                bb_signals, _ = self.analyze_bollinger(df, latest, prev)
-                reversion_signals.extend(bb_signals)
-
-            if reversion_signals:
-                avg_signal = np.mean(reversion_signals) * 1.1
-            else:
-                avg_signal = np.mean(all_signals) if all_signals else 0
-
-            threshold = 0.5
-            confidence_multiplier = 1.0
-        elif strategy == 'breakout':
-            # استراتيجية الاختراق - التركيز على Bollinger Bands و ATR
-            breakout_signals = []
-            if 'BB' in selected_indicators:
-                bb_signals, _ = self.analyze_bollinger(df, latest, prev)
-                breakout_signals.extend(bb_signals)
-            if 'ATR' in selected_indicators:
-                atr_signals, _ = self.analyze_atr(df, latest, prev)
-                breakout_signals.extend(atr_signals)
-
-            if breakout_signals:
-                avg_signal = np.mean(breakout_signals) * 0.9  # إشارات الاختراق أقل موثوقية
-            else:
-                avg_signal = np.mean(all_signals) if all_signals else 0
-
-            threshold = 0.45
-            confidence_multiplier = 0.9
-        else:
-            # الاستراتيجية الافتراضية (متوازنة)
-            avg_signal = np.mean(all_signals) if all_signals else 0
-            threshold = 0.35
-            confidence_multiplier = 1.0
+        # الاستراتيجية الافتراضية (متوازنة)
+        avg_signal = np.mean(all_signals) if all_signals else 0
+        threshold = 0.35
+        confidence_multiplier = 1.0
 
         # حساب الإشارة النهائية
         if len(all_signals) == 0:
@@ -482,39 +696,16 @@ class TradingAnalyzer:
             final_signal = 'HOLD'
             signal_text = 'انتظار (HOLD) ⚪'
 
-        # إضافة اسم الاستراتيجية للتفاصيل
-        strategy_names = {
-            'default': 'الاستراتيجية الافتراضية (متوازنة)',
-            'conservative': 'استراتيجية محافظة',
-            'aggressive': 'استراتيجية عدوانية',
-            'trend_following': 'متابعة الاتجاه',
-            'mean_reversion': 'العودة للوسط',
-            'breakout': 'استراتيجية الاختراق'
-        }
-
-        if all_details:
-            all_details.insert(0, f"🎯 {strategy_names.get(strategy, 'استراتيجية غير معروفة')}")
-
-        # جمع قيم المؤشرات من latest
+        # جمع قيم المؤشرات
         indicators_values = {}
-        for ind in selected_indicators:
-            if ind == 'EMA50' and 'EMA50' in df.columns:
-                indicators_values['EMA50'] = self.safe_float(latest['EMA50'])
-            elif ind == 'EMA200' and 'EMA200' in df.columns:
-                indicators_values['EMA200'] = self.safe_float(latest['EMA200'])
-            elif ind == 'RSI' and 'RSI' in df.columns:
-                indicators_values['RSI'] = self.safe_float(latest['RSI'])
-            elif ind == 'MACD' and 'MACD' in df.columns:
-                indicators_values['MACD'] = self.safe_float(latest['MACD'])
-                indicators_values['MACD_signal'] = self.safe_float(latest['MACD_signal'])
-                indicators_values['MACD_diff'] = self.safe_float(latest['MACD_diff'])
-            elif ind == 'BB' and 'BB_upper' in df.columns:
-                indicators_values['BB_upper'] = self.safe_float(latest['BB_upper'])
-                indicators_values['BB_middle'] = self.safe_float(latest['BB_middle'])
-                indicators_values['BB_lower'] = self.safe_float(latest['BB_lower'])
-                indicators_values['BB_pband'] = self.safe_float(latest['BB_pband'])
-            elif ind == 'ATR' and 'ATR' in df.columns:
-                indicators_values['ATR'] = self.safe_float(latest['ATR'])
+        for category, indicators in selected_indicators.items():
+            for indicator in indicators:
+                if indicator in indicators_data and indicators_data[indicator]:
+                    latest_data = indicators_data[indicator][0]
+                    if isinstance(latest_data, dict):
+                        for key, value in latest_data.items():
+                            if key != 'datetime':
+                                indicators_values[f"{indicator}_{key}"] = self.safe_float(value)
 
         return {
             'signal': final_signal,
@@ -524,38 +715,63 @@ class TradingAnalyzer:
             'all_details': all_details,
             'indicators': indicators_values,
             'price': {
-                'open': self.safe_float(latest['open']),
-                'high': self.safe_float(latest['high']),
-                'low': self.safe_float(latest['low']),
-                'close': self.safe_float(latest['close'])
+                'open': self.safe_float(price_data[0]['open']),
+                'high': self.safe_float(price_data[0]['high']),
+                'low': self.safe_float(price_data[0]['low']),
+                'close': self.safe_float(price_data[0]['close'])
             },
-            'last_candle_time': latest['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
-            'strategy': strategy
+            'last_candle_time': price_data[0]['datetime']
         }
-    def analyze_pair(self, pair, period, selected_indicators, strategy='default'):
+    def analyze_pair(self, pair, period, selected_indicators, interval='1min'):
         """تحليل زوج واحد"""
-        df = self.fetch_data(pair, period)
-        if df is None:
-            return None
+        try:
+            # جلب بيانات الأسعار
+            price_df = self.fetch_price_data(pair, interval, period)
+            if price_df is None or len(price_df) == 0:
+                print(f"لا توجد بيانات أسعار لـ {pair}")
+                return None
 
-        df = self.calculate_indicators(df, selected_indicators)
-        if df is None:
-            return None
+            # جلب بيانات المؤشرات
+            indicators_data = self.fetch_indicators_data(pair, selected_indicators, interval)
+            if not indicators_data:
+                print(f"لا توجد بيانات مؤشرات لـ {pair}")
+                return None
 
-        analysis = self.generate_signal(df, selected_indicators, strategy)
-        # إضافة بيانات الشموع للرسم البياني
-        chart_data = []
-        for _, row in df.tail(50).iterrows():
-            chart_data.append({
-                'time': row['datetime'].strftime('%H:%M'),
-                'open': self.safe_float(row['open']),
-                'high': self.safe_float(row['high']),
-                'low': self.safe_float(row['low']),
-                'close': self.safe_float(row['close'])
-            })
-        analysis['chart_data'] = chart_data
-        return analysis
-    def start_analysis(self, pairs, period, interval_minutes, selected_indicators, strategy='default'):
+            # تحويل بيانات الأسعار إلى تنسيق مناسب
+            price_data = []
+            for _, row in price_df.tail(50).iterrows():
+                price_data.append({
+                    'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
+                    'open': self.safe_float(row['open']),
+                    'high': self.safe_float(row['high']),
+                    'low': self.safe_float(row['low']),
+                    'close': self.safe_float(row['close'])
+                })
+
+            if not price_data:
+                print(f"بيانات الأسعار فارغة لـ {pair}")
+                return None
+
+            # توليد الإشارة
+            analysis = self.generate_signal(indicators_data, price_data, selected_indicators)
+            
+            # إضافة بيانات الشموع للرسم البياني
+            chart_data = []
+            for row in price_data:
+                chart_data.append({
+                    'time': row['datetime'].split(' ')[1][:5],  # الوقت فقط
+                    'open': row['open'],
+                    'high': row['high'],
+                    'low': row['low'],
+                    'close': row['close']
+                })
+            analysis['chart_data'] = chart_data
+            return analysis
+            
+        except Exception as e:
+            print(f"خطأ في تحليل {pair}: {str(e)}")
+            return None
+    def start_analysis(self, pairs, period, interval_minutes, selected_indicators):
         """تخزين الإعدادات دون تشغيل تحليل مستمر"""
         self.latest_results = {}  # إعادة تعيين النتائج
         self.is_running = True
@@ -563,8 +779,7 @@ class TradingAnalyzer:
             'pairs': pairs,
             'period': period,
             'interval': interval_minutes,
-            'indicators': selected_indicators,
-            'strategy': strategy
+            'indicators': selected_indicators
         }
         return True
 
@@ -636,41 +851,70 @@ def get_status():
         'results': analyzer.latest_results
     })
 
+@app.route('/api/requests-status')
+def get_requests_status():
+    """الحصول على حالة طلبات API"""
+    return jsonify(analyzer.get_api_status())
+
 
 @app.route('/api/results')
 def get_results():
     """تشغيل التحليل عند الطلب"""
-    if not analyzer.is_running or not hasattr(analyzer, 'analysis_config'):
-        return jsonify({'status': 'error', 'message': 'التحليل غير مفعل حالياً'})
+    try:
+        if not analyzer.is_running or not hasattr(analyzer, 'analysis_config'):
+            return jsonify({'status': 'error', 'message': 'التحليل غير مفعل حالياً'})
 
-    config = analyzer.analysis_config
-    results = {}
-    current_time = datetime.now(timezone.utc) + timedelta(hours=3)
+        config = analyzer.analysis_config
+        results = {}
+        current_time = datetime.now(timezone.utc) + timedelta(hours=2)
 
-    for pair in config['pairs']:
-        analysis = analyzer.analyze_pair(pair, config['period'], config['indicators'], config.get('strategy', 'default'))
-        if analysis:
-            next_candle = current_time.replace(second=0, microsecond=0) + timedelta(minutes=1)
-            end_time = next_candle + timedelta(minutes=config['interval'])
+        for pair in config['pairs']:
+            try:
+                # تحويل الفترة إلى دقائق
+                interval_str = f"{config['interval']}min"
+                analysis = analyzer.analyze_pair(
+                    pair,
+                    config['period'],
+                    config['indicators'],
+                    interval_str
+                )
+                if analysis:
+                    next_candle = current_time.replace(second=0, microsecond=0) + timedelta(minutes=1)
+                    end_time = next_candle + timedelta(minutes=config['interval'])
 
-            analysis['trade_timing'] = {
-                'current_time': current_time.strftime('%Y-%m-%d %H:%M:%S'),
-                'entry_time': next_candle.strftime('%H:%M:%S'),
-                'exit_time': end_time.strftime('%H:%M:%S'),
-                'duration': config['interval']
-            }
+                    analysis['trade_timing'] = {
+                        'current_time': current_time.strftime('%Y-%m-%d %H:%M:%S'),
+                        'entry_time': next_candle.strftime('%H:%M:%S'),
+                        'exit_time': end_time.strftime('%H:%M:%S'),
+                        'duration': config['interval']
+                    }
 
-            results[pair] = analysis
+                    results[pair] = analysis
+                else:
+                    print(f"فشل تحليل {pair}")
+            except Exception as e:
+                print(f"خطأ في تحليل {pair}: {str(e)}")
+                continue
 
-    analyzer.latest_results = {
-        'timestamp': datetime.now().isoformat(),
-        'analysis': results,
-        'selected_indicators': config['indicators'],
-        'status': 'success'
-    }
-    return jsonify(analyzer.latest_results)
+        analyzer.latest_results = {
+            'timestamp': datetime.now().isoformat(),
+            'analysis': results,
+            'selected_indicators': config['indicators'],
+            'status': 'success'
+        }
+        return jsonify(analyzer.latest_results)
+        
+    except Exception as e:
+        print(f"خطأ في API results: {str(e)}")
+        return jsonify({'status': 'error', 'message': f'خطأ في الخادم: {str(e)}'})
 if __name__ == '__main__':
     print("🚀 بدء خادم التداول المتقدم...")
     print("📱 افتح المتصفح على: http://localhost:5000")
-    print("📊 المؤشرات المتاحة: EMA50, EMA200, RSI, MACD, Bollinger Bands, ATR")
+    print("📊 المؤشرات المتاحة:")
+    print("   🔄 Trend: SMA, EMA, WMA, DEMA, TEMA, KAMA, HMA, T3")
+    print("   ⚡ Momentum: RSI, STOCH, STOCHRSI, WILLR, MACD, PPO, ADX, CCI, MOM, ROC")
+    print("   📈 Volatility: BBANDS, ATR, STDEV, DONCHIAN")
+    print("   📊 Volume: OBV, CMF, AD, MFI, EMV, FI")
+    print("   💰 Price: AVGPRICE, MEDPRICE, TYPPRICE, WCPRICE")
+    print("   🎯 Misc: SAR, ULTOSC, TSI")
     app.run(debug=True, host='0.0.0.0', port=5000)

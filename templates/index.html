@@ -438,6 +438,115 @@
         .select-all-btn:hover {
             background: #5568d3;
         }
+
+        .indicator-category {
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .category-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .category-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .api-status {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .api-status-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .api-status-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .api-status-value {
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -450,13 +559,13 @@
             <div class="section-title">⚙️ إعدادات التحليل</div>
 
             <div class="form-group">
-                <label>🔑 مفتاح API (TwelveData):</label>
+                <label for="apiKey">🔑 مفتاح API (TwelveData):</label>
                 <input type="password" id="apiKey" placeholder="أدخل مفتاح API الخاص بك" value="">
                 <small style="color: #666; font-size: 12px;">اتركه فارغاً لاستخدام المفتاح الافتراضي</small>
             </div>
 
             <div class="form-group">
-                <label>⏱️ مدة الصفقة (بالدقائق):</label>
+                <label for="tradeInterval">⏱️ مدة الصفقة (بالدقائق):</label>
                 <input type="number" id="tradeInterval" value="1" min="1" max="60">
             </div>
 
@@ -466,17 +575,7 @@
                 <div class="checkbox-grid" id="indicatorsGrid"></div>
             </div>
 
-            <div class="form-group">
-                <label>🎯 اختر استراتيجية التداول:</label>
-                <select id="strategySelect">
-                    <option value="default">الاستراتيجية الافتراضية (متوازنة)</option>
-                    <option value="conservative">استراتيجية محافظة (أقل مخاطر)</option>
-                    <option value="aggressive">استراتيجية عدوانية (أعلى عوائد)</option>
-                    <option value="trend_following">متابعة الاتجاه</option>
-                    <option value="mean_reversion">العودة للوسط</option>
-                    <option value="breakout">استراتيجية الاختراق</option>
-                </select>
-            </div>
+
 
             <div class="form-group">
                 <label>💱 اختر أزواج العملات:</label>
@@ -502,8 +601,38 @@
             </div>
         </div>
 
+        <div class="api-status" id="apiStatus">
+            <div class="api-status-item">
+                <span class="api-status-label">طلبات API:</span>
+                <span class="api-status-value" id="apiRequests">0/8</span>
+            </div>
+            <div class="api-status-item">
+                <span class="api-status-label">الطلبات المتبقية:</span>
+                <span class="api-status-value" id="apiRemaining">8</span>
+            </div>
+            <div class="api-status-item">
+                <span class="api-status-label">الوقت المتبقي:</span>
+                <span class="api-status-value" id="apiTimeRemaining">60 ثانية</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="apiProgress" style="width: 0%">0%</div>
+            </div>
+        </div>
+
         <div class="results-grid" id="resultsGrid">
             <div class="no-data">قم ببدء التحليل لعرض النتائج</div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3 id="loadingTitle">جاري التحليل...</h3>
+            <p id="loadingMessage">يرجى الانتظار بينما نقوم بجلب البيانات وتحليلها</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="loadingProgress" style="width: 0%">0%</div>
+            </div>
         </div>
     </div>
 
@@ -515,6 +644,10 @@
         window.onload = function() {
             loadIndicators();
             loadPairs();
+            updateApiStatus();
+            
+            // تحديث حالة API كل ثانية
+            setInterval(updateApiStatus, 1000);
         };
 
         function loadIndicators() {
@@ -525,17 +658,41 @@
                     const grid = document.getElementById('indicatorsGrid');
                     grid.innerHTML = '';
                     
-                    Object.keys(indicators).forEach(key => {
-                        const div = document.createElement('div');
-                        div.className = 'checkbox-item';
-                        div.innerHTML = `
-                            <input type="checkbox" id="ind_${key}" value="${key}" >
-                            <label for="ind_${key}">${indicators[key]}</label>
+                    // إنشاء مجموعات المؤشرات
+                    Object.keys(indicators).forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'indicator-category';
+                        categoryDiv.innerHTML = `
+                            <div class="category-title">${getCategoryTitle(category)}</div>
+                            <div class="category-indicators" id="cat_${category}"></div>
                         `;
-                        grid.appendChild(div);
+                        grid.appendChild(categoryDiv);
+                        
+                        const categoryIndicators = document.getElementById(`cat_${category}`);
+                        Object.keys(indicators[category]).forEach(indicator => {
+                            const div = document.createElement('div');
+                            div.className = 'checkbox-item';
+                            div.innerHTML = `
+                                <input type="checkbox" id="ind_${category}_${indicator}" value="${category}:${indicator}" >
+                                <label for="ind_${category}_${indicator}">${indicators[category][indicator]}</label>
+                            `;
+                            categoryIndicators.appendChild(div);
+                        });
                     });
                 })
                 .catch(error => console.error('Error loading indicators:', error));
+        }
+
+        function getCategoryTitle(category) {
+            const titles = {
+                'trend': '🔄 مؤشرات الاتجاه',
+                'momentum': '⚡ مؤشرات الزخم',
+                'volatility': '📈 مؤشرات التذبذب',
+                'volume': '📊 مؤشرات الحجم',
+                'price': '💰 مؤشرات السعر',
+                'misc': '🎯 مؤشرات أخرى'
+            };
+            return titles[category] || category;
         }
 
         function loadPairs() {
@@ -573,7 +730,17 @@
 
         function getSelectedIndicators() {
             const checkboxes = document.querySelectorAll('#indicatorsGrid input[type="checkbox"]:checked');
-            return Array.from(checkboxes).map(cb => cb.value);
+            const selected = {};
+            
+            Array.from(checkboxes).forEach(cb => {
+                const [category, indicator] = cb.value.split(':');
+                if (!selected[category]) {
+                    selected[category] = [];
+                }
+                selected[category].push(indicator);
+            });
+            
+            return selected;
         }
 
         function getSelectedPairs() {
@@ -581,14 +748,65 @@
             return Array.from(checkboxes).map(cb => cb.value);
         }
 
+        function updateApiStatus() {
+            fetch('/api/requests-status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('apiRequests').textContent = `${data.requests_used}/${data.requests_limit}`;
+                    document.getElementById('apiRemaining').textContent = data.requests_remaining;
+                    document.getElementById('apiTimeRemaining').textContent = `${data.time_remaining} ثانية`;
+                    
+                    const progress = (data.requests_used / data.requests_limit) * 100;
+                    document.getElementById('apiProgress').style.width = `${progress}%`;
+                    document.getElementById('apiProgress').textContent = `${Math.round(progress)}%`;
+                    
+                    // تغيير لون الشريط حسب الاستخدام
+                    const progressFill = document.getElementById('apiProgress');
+                    if (progress >= 80) {
+                        progressFill.style.background = 'linear-gradient(90deg, #dc3545 0%, #c82333 100%)';
+                    } else if (progress >= 60) {
+                        progressFill.style.background = 'linear-gradient(90deg, #ffc107 0%, #e0a800 100%)';
+                    } else {
+                        progressFill.style.background = 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
+                    }
+                })
+                .catch(error => console.error('Error updating API status:', error));
+        }
+
+        function showLoading(title, message) {
+            document.getElementById('loadingTitle').textContent = title;
+            document.getElementById('loadingMessage').textContent = message;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function updateLoadingProgress(percent, message) {
+            document.getElementById('loadingProgress').style.width = `${percent}%`;
+            document.getElementById('loadingProgress').textContent = `${percent}%`;
+            if (message) {
+                document.getElementById('loadingMessage').textContent = message;
+            }
+        }
+
         function startAnalysis() {
+            // منع الضغط المتكرر
+            const startBtn = document.getElementById('startBtn');
+            if (startBtn.disabled) {
+                return;
+            }
+
             const selectedIndicators = getSelectedIndicators();
             const selectedPairs = getSelectedPairs();
             const interval = parseInt(document.getElementById('tradeInterval').value);
             const apiKey = document.getElementById('apiKey').value.trim();
-            const strategy = document.getElementById('strategySelect').value;
+            const strategy = 'default'; // استخدام الاستراتيجية الافتراضية
 
-            if (selectedIndicators.length === 0) {
+            // التحقق من وجود مؤشرات مختارة
+            const totalIndicators = Object.values(selectedIndicators).reduce((sum, arr) => sum + arr.length, 0);
+            if (totalIndicators === 0) {
                 alert('يرجى اختيار مؤشر واحد على الأقل');
                 return;
             }
@@ -597,6 +815,14 @@
                 alert('يرجى اختيار زوج واحد على الأقل');
                 return;
             }
+
+            // تعطيل الأزرار لمنع الضغط المتكرر
+            startBtn.disabled = true;
+            document.getElementById('refreshBtn').disabled = true;
+
+            // إظهار مؤشر التحميل
+            showLoading('جاري بدء التحليل...', 'يرجى الانتظار بينما نقوم بإعداد التحليل');
+            updateLoadingProgress(10, 'جاري إرسال الطلب...');
 
             const data = {
                 api_key: apiKey,
@@ -607,6 +833,8 @@
                 strategy: strategy
             };
 
+            updateLoadingProgress(30, 'جاري إرسال الطلب إلى الخادم...');
+
             fetch('/api/start', {
                 method: 'POST',
                 headers: {
@@ -616,19 +844,37 @@
             })
             .then(response => response.json())
             .then(data => {
+                updateLoadingProgress(60, 'جاري معالجة الطلب...');
+                
                 if (data.status === 'success') {
                     document.getElementById('startBtn').disabled = true;
                     document.getElementById('stopBtn').disabled = false;
                     document.getElementById('statusIndicator').textContent = 'يعمل';
                     document.getElementById('statusIndicator').className = 'status-value status-running';
-                    alert('تم بدء التحليل بنجاح');
+                    
+                    updateLoadingProgress(100, 'تم بدء التحليل بنجاح!');
+                    
+                    setTimeout(() => {
+                        hideLoading();
+                        alert('تم بدء التحليل بنجاح');
+                        // إعادة تفعيل الأزرار
+                        document.getElementById('refreshBtn').disabled = false;
+                    }, 1000);
                 } else {
+                    hideLoading();
                     alert('خطأ: ' + data.message);
+                    // إعادة تفعيل الأزرار
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('refreshBtn').disabled = false;
                 }
             })
             .catch(error => {
+                hideLoading();
                 console.error('Error:', error);
                 alert('حدث خطأ في بدء التحليل');
+                // إعادة تفعيل الأزرار
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('refreshBtn').disabled = false;
             });
         }
 
@@ -651,18 +897,50 @@
         }
 
         function refreshResults() {
+            // منع الضغط المتكرر
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (refreshBtn.disabled) {
+                return;
+            }
+
+            // تعطيل الزر
+            refreshBtn.disabled = true;
+
+            showLoading('جاري تحديث النتائج...', 'يرجى الانتظار بينما نقوم بجلب أحدث البيانات');
+            updateLoadingProgress(20, 'جاري الاتصال بالخادم...');
+            
             fetch('/api/results')
                 .then(response => response.json())
                 .then(data => {
+                    updateLoadingProgress(60, 'جاري معالجة البيانات...');
+                    
                     if (data.status === 'success' && data.analysis) {
+                        updateLoadingProgress(80, 'جاري عرض النتائج...');
                         displayResults(data);
+                        updateLoadingProgress(100, 'تم تحديث النتائج بنجاح!');
+                        
+                        setTimeout(() => {
+                            hideLoading();
+                            // إعادة تفعيل الزر
+                            document.getElementById('refreshBtn').disabled = false;
+                        }, 500);
                     } else {
+                        updateLoadingProgress(100, 'لا توجد نتائج متاحة');
                         document.getElementById('resultsGrid').innerHTML = '<div class="no-data">لا توجد نتائج متاحة</div>';
+                        
+                        setTimeout(() => {
+                            hideLoading();
+                            // إعادة تفعيل الزر
+                            document.getElementById('refreshBtn').disabled = false;
+                        }, 1000);
                     }
                 })
                 .catch(error => {
+                    hideLoading();
                     console.error('Error:', error);
                     alert('حدث خطأ في تحديث النتائج');
+                    // إعادة تفعيل الزر
+                    document.getElementById('refreshBtn').disabled = false;
                 });
         }
 
@@ -793,7 +1071,7 @@
 
                 <div class="info-section">
                     <div class="info-title">🕐 آخر شمعة</div>
-                    <div class="info-content">${analysis.last_candle_time}</div>
+                    <div class="info-content">${new Date(analysis.last_candle_time).toLocaleString('ar-EG', { timeZone: 'Asia/Gaza' })}</div>
                 </div>
             `;
 
