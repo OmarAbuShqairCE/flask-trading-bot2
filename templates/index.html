@@ -158,6 +158,21 @@
         .btn-refresh {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+          .btn.btn-ai {
+    background-color: #ff69b4; /* زهري */
+    color: white; /* لون النص */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .btn.btn-ai:hover {
+    background-color: #ff85c1; /* زهري أفتح عند التمرير */
+    transform: scale(1.05); /* تكبير بسيط عند hover */
+  }
 
         .status-bar {
             background: white;
@@ -768,6 +783,615 @@
         .metric-value {
             color: #333;
         }
+        
+        /* Trade Evaluation Styles */
+        .pending-trades-list {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        
+        .trade-evaluation-section {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+        }
+        
+        .trade-evaluation-section .section-title {
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .evaluation-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .training-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+        }
+        
+        .training-section .section-title {
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .training-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn-training {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-training:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .training-status {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .training-progress {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .training-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .trade-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .trade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .trade-pair {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .trade-signal {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .signal-call {
+            background: #28a745;
+        }
+        
+        .signal-put {
+            background: #dc3545;
+        }
+        
+        .trade-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .trade-detail-item {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .trade-detail-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .trade-detail-value {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .trade-evaluation {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .evaluation-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .btn-evaluate {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-failed {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-failed:hover {
+            background: #c82333;
+        }
+        
+        .evaluation-notes {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            margin: 10px 0;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .trade-history-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .trade-history-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .history-trade-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .history-trade-item.successful {
+            border-left-color: #28a745;
+        }
+        
+        .history-trade-item.failed {
+            border-left-color: #dc3545;
+        }
+        
+        .history-trade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .history-trade-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .status-successful {
+            background: #28a745;
+        }
+        
+        .status-failed {
+            background: #dc3545;
+        }
+
+        /* API Status Indicators */
+        .api-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .api-status-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-left: 4px solid #155724;
+        }
+
+        .api-status-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: white;
+            border-left: 4px solid #856404;
+        }
+
+        .api-status-error {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border-left: 4px solid #721c24;
+        }
+
+        .api-status-loading {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-left: 4px solid #4c63d2;
+        }
+
+        .api-status-icon {
+            font-size: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .data-validation-panel {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .validation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .validation-item:last-child {
+            border-bottom: none;
+        }
+
+        .validation-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .validation-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .validation-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .validation-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .validation-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .api-response-panel {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .response-success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .response-error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .response-warning {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        /* Trade Type Separation Styles */
+        .trade-type-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+            margin: 15px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .trade-type-tab {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            border: none;
+            background: transparent;
+        }
+
+        .trade-type-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .trade-type-tab:not(.active) {
+            color: #666;
+        }
+
+        .trade-type-tab:not(.active):hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .trade-type-content {
+            display: none;
+        }
+
+        .trade-type-content.active {
+            display: block;
+        }
+
+        .trade-type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .trade-type-real {
+            background: #28a745;
+            color: white;
+        }
+
+        .trade-type-test {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .ai-notes-section {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .ai-notes-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .ai-notes-content {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 60px;
+            resize: vertical;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .ai-notes-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-ai-notes {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-ai-notes.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-ai-notes.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-ai-notes:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .cancel-evaluation-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cancel-evaluation-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .evaluation-instructions {
+            margin: 10px 0;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .evaluation-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-evaluate {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-evaluate.btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-evaluate.btn-success:hover {
+            background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-evaluate.btn-failed {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .btn-evaluate.btn-failed:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .cancel-evaluation-btn {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .cancel-evaluation-btn:hover {
+            background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -843,6 +1467,7 @@
                 <button class="btn btn-start" id="startBtn" onclick="startAnalysis()">▶️ بدء التحليل</button>
                 <button class="btn btn-stop" id="stopBtn" onclick="stopAnalysis()" disabled>⏹️ إيقاف التحليل</button>
                 <button class="btn btn-refresh" id="refreshBtn" onclick="refreshResults()">🔄 تحديث النتائج</button>
+                <button class="btn btn-ai" onclick="toggleTradeEvaluation()">📊 تقييم الصفقات</button>
             </div>
         </div>
 
@@ -857,7 +1482,33 @@
             </div>
         </div>
 
+        <!-- مؤشر حالة API المحسن -->
         <div class="api-status" id="apiStatus">
+            <div class="api-status-indicator" id="apiStatusIndicator">
+                <span class="api-status-icon">🔄</span>
+                <span id="apiStatusText">جاري التحقق من حالة API...</span>
+            </div>
+            
+            <div class="data-validation-panel" id="dataValidationPanel">
+                <h4 style="margin-bottom: 15px; color: #667eea;">📊 تحقق من صحة البيانات</h4>
+                <div class="validation-item">
+                    <span class="validation-label">اتصال API:</span>
+                    <span class="validation-status" id="apiConnectionStatus">جاري التحقق...</span>
+                </div>
+                <div class="validation-item">
+                    <span class="validation-label">بيانات الأسعار:</span>
+                    <span class="validation-status" id="priceDataStatus">غير متاح</span>
+                </div>
+                <div class="validation-item">
+                    <span class="validation-label">بيانات المؤشرات:</span>
+                    <span class="validation-status" id="indicatorsDataStatus">غير متاح</span>
+                </div>
+                <div class="validation-item">
+                    <span class="validation-label">جودة البيانات:</span>
+                    <span class="validation-status" id="dataQualityStatus">غير متاح</span>
+                </div>
+            </div>
+            
             <div class="api-status-item">
                 <span class="api-status-label">طلبات API:</span>
                 <span class="api-status-value" id="apiRequests">0/8</span>
@@ -873,10 +1524,167 @@
             <div class="progress-bar">
                 <div class="progress-fill" id="apiProgress" style="width: 0%">0%</div>
             </div>
+            
+            <!-- لوحة عرض استجابة API -->
+            <div class="api-response-panel" id="apiResponsePanel" style="display: none;">
+                <div style="font-weight: bold; margin-bottom: 10px;">📡 آخر استجابة من API:</div>
+                <div id="apiResponseContent">لا توجد استجابة بعد</div>
+            </div>
+            
+            <!-- أزرار التحكم في API -->
+            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-refresh" onclick="checkApiConnection()" style="flex: 1; min-width: 120px;">
+                    🔍 فحص API
+                </button>
+                <button class="btn btn-start" onclick="testApiWithSampleData()" style="flex: 1; min-width: 120px;">
+                    🧪 اختبار البيانات
+                </button>
+                <button class="btn btn-ai" onclick="showApiDiagnostics()" style="flex: 1; min-width: 120px;">
+                    🔧 تشخيص API
+                </button>
+            </div>
         </div>
 
         <div class="results-grid" id="resultsGrid">
             <div class="no-data">قم ببدء التحليل لعرض النتائج</div>
+        </div>
+        
+        <!-- قسم تقييم الصفقات -->
+        <div class="control-panel" id="tradeEvaluationPanel" style="display: none;">
+            <!-- قسم إحصائيات الصفقات -->
+            <div class="trade-evaluation-section">
+                <div class="section-title">📊 إحصائيات الصفقات - تدريب الذكاء الاصطناعي</div>
+                
+                <!-- تبويبات أنواع الصفقات -->
+                <div class="trade-type-tabs">
+                    <button class="trade-type-tab active" onclick="switchTradeType('real')">
+                        📈 الصفقات الحقيقية
+                    </button>
+                    <button class="trade-type-tab" onclick="switchTradeType('test')">
+                        🧪 الصفقات التجريبية
+                    </button>
+                </div>
+                
+                <!-- إحصائيات الصفقات الحقيقية -->
+                <div class="trade-type-content active" id="realTradesContent">
+                    <h4>📈 إحصائيات الصفقات الحقيقية</h4>
+                    <div class="evaluation-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalRealTrades">0</div>
+                            <div class="stat-label">إجمالي الصفقات الحقيقية</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="successfulRealTrades">0</div>
+                            <div class="stat-label">الصفقات الناجحة</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="realSuccessRate">0%</div>
+                            <div class="stat-label">معدل النجاح</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="pendingRealTrades">0</div>
+                            <div class="stat-label">صفقات معلقة</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- إحصائيات الصفقات التجريبية -->
+                <div class="trade-type-content" id="testTradesContent">
+                    <h4>🧪 إحصائيات الصفقات التجريبية</h4>
+                    <div class="evaluation-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalTestTrades">0</div>
+                            <div class="stat-label">إجمالي الصفقات التجريبية</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="successfulTestTrades">0</div>
+                            <div class="stat-label">الصفقات الناجحة</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="testSuccessRate">0%</div>
+                            <div class="stat-label">معدل النجاح</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="pendingTestTrades">0</div>
+                            <div class="stat-label">صفقات معلقة</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم التدريب اليدوي -->
+            <div class="training-section">
+                <div class="section-title">🧠 التدريب اليدوي للنماذج</div>
+                
+                <div class="training-controls">
+                    <button class="btn-training" onclick="loadPendingTrades()">🔄 تحديث الصفقات</button>
+                    <button class="btn-training" onclick="showTradeHistory()">📊 عرض التاريخ</button>
+                    <button class="btn-training" onclick="trainAIWithEvaluations()">🧠 تدريب على التقييمات</button>
+                    <button class="btn-training" onclick="createTestTrade()">🧪 إنشاء صفقة تجريبية</button>
+                    <button class="btn-training" onclick="showTrainingProgress()">📈 تقدم التدريب</button>
+                    <button class="btn-training" onclick="showTradeAnalytics()">📊 تحليلات متقدمة</button>
+                </div>
+                
+                <div class="training-status" id="trainingStatus">
+                    <div style="margin-bottom: 10px;">
+                        <strong>حالة التدريب:</strong> <span id="trainingStatusText">جاهز للتدريب</span>
+                    </div>
+                    <div class="training-progress">
+                        <div class="training-progress-fill" id="trainingProgress" style="width: 0%">0%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم الصفقات المعلقة -->
+            <div class="form-group">
+                <label style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 15px;">
+                    ⏳ الصفقات المعلقة للتقييم (اضغط على ناجحة/خاسرة لتقييم الصفقة):
+                </label>
+                
+                <!-- تبويبات الصفقات المعلقة -->
+                <div class="trade-type-tabs">
+                    <button class="trade-type-tab active" onclick="switchPendingTradesType('real')">
+                        📈 الصفقات الحقيقية المعلقة
+                    </button>
+                    <button class="trade-type-tab" onclick="switchPendingTradesType('test')">
+                        🧪 الصفقات التجريبية المعلقة
+                    </button>
+                </div>
+                
+                <!-- قائمة الصفقات الحقيقية المعلقة -->
+                <div class="trade-type-content active" id="pendingRealTradesList">
+                    <h4>📈 الصفقات الحقيقية المعلقة</h4>
+                    <div id="pendingRealTradesContent" class="pending-trades-list">
+                        <div class="no-data">لا توجد صفقات حقيقية معلقة</div>
+                    </div>
+                </div>
+                
+                <!-- قائمة الصفقات التجريبية المعلقة -->
+                <div class="trade-type-content" id="pendingTestTradesList">
+                    <h4>🧪 الصفقات التجريبية المعلقة</h4>
+                    <div id="pendingTestTradesContent" class="pending-trades-list">
+                        <div class="no-data">لا توجد صفقات تجريبية معلقة</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم الملاحظات المتقدمة -->
+            <div class="form-group">
+                <label style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 15px;">
+                    📝 إضافة ملاحظات للصفقات:
+                </label>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 10px 0;">
+                    <p style="margin-bottom: 10px; color: #666;">
+                        💡 <strong>نصائح للتقييم:</strong>
+                    </p>
+                    <ul style="margin: 10px 0; padding-right: 20px; color: #666;">
+                        <li>قيم الصفقة بناءً على النتيجة الفعلية للسعر</li>
+                        <li>أضف ملاحظات مفيدة لتحسين النماذج</li>
+                        <li>تأكد من دقة التوقيت في التقييم</li>
+                        <li>استخدم الملاحظات لوصف ظروف السوق</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -902,12 +1710,51 @@
             loadPairs();
             updateApiStatus();
             updateAIStatus();
+            checkApiConnection(); // فحص اتصال API عند البدء
             
             // تحديث حالة API كل ثانية
             setInterval(updateApiStatus, 1000);
             // تحديث حالة AI كل 5 ثوان
             setInterval(updateAIStatus, 5000);
+            // فحص اتصال API كل 30 ثانية
+            setInterval(checkApiConnection, 30000);
+            
+            // التحقق من وجود عنصر تقييم الصفقات
+            const tradePanel = document.getElementById('tradeEvaluationPanel');
+            if (tradePanel) {
+                console.log('✅ تم العثور على قسم تقييم الصفقات');
+            } else {
+                console.error('❌ قسم تقييم الصفقات غير موجود');
+            }
         };
+
+        // دالة للتحقق من اتصال API
+        function checkApiConnection() {
+            const indicator = document.getElementById('apiStatusIndicator');
+            indicator.className = 'api-status-indicator api-status-loading';
+            document.getElementById('apiStatusText').textContent = 'جاري فحص اتصال API...';
+            
+            fetch('/api/requests-status')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                })
+                .then(data => {
+                    updateApiStatusIndicator(data);
+                    console.log('✅ اتصال API يعمل بشكل طبيعي');
+                })
+                .catch(error => {
+                    console.error('❌ خطأ في اتصال API:', error);
+                    updateApiStatusIndicator({error: true});
+                    
+                    // عرض تنبيه للمستخدم
+                    const errorMessage = `خطأ في اتصال API: ${error.message}`;
+                    showApiResponse({error: errorMessage, timestamp: new Date().toISOString()}, false);
+                });
+        }
 
         function loadIndicators() {
             fetch('/api/indicators')
@@ -1028,8 +1875,375 @@
                     } else {
                         progressFill.style.background = 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
                     }
+                    
+                    // تحديث مؤشر حالة API
+                    updateApiStatusIndicator(data);
                 })
-                .catch(error => console.error('Error updating API status:', error));
+                .catch(error => {
+                    console.error('Error updating API status:', error);
+                    updateApiStatusIndicator({error: true});
+                });
+        }
+
+        // دالة جديدة لتحديث مؤشر حالة API
+        function updateApiStatusIndicator(apiData) {
+            const indicator = document.getElementById('apiStatusIndicator');
+            const statusText = document.getElementById('apiStatusText');
+            const icon = indicator.querySelector('.api-status-icon');
+            
+            if (apiData.error) {
+                // حالة خطأ
+                indicator.className = 'api-status-indicator api-status-error';
+                icon.textContent = '❌';
+                statusText.textContent = 'خطأ في الاتصال بـ API';
+                updateValidationStatus('apiConnectionStatus', 'error', 'فشل الاتصال');
+            } else if (apiData.requests_used >= apiData.requests_limit) {
+                // حالة استنفاد الطلبات
+                indicator.className = 'api-status-indicator api-status-warning';
+                icon.textContent = '⚠️';
+                statusText.textContent = 'تم استنفاد طلبات API - انتظر دقيقة';
+                updateValidationStatus('apiConnectionStatus', 'warning', 'مستنفد');
+            } else if (apiData.requests_used > 0) {
+                // حالة طبيعية مع استخدام
+                indicator.className = 'api-status-indicator api-status-success';
+                icon.textContent = '✅';
+                statusText.textContent = `API يعمل بشكل طبيعي (${apiData.requests_used}/${apiData.requests_limit})`;
+                updateValidationStatus('apiConnectionStatus', 'success', 'متصل');
+            } else {
+                // حالة جاهز
+                indicator.className = 'api-status-indicator api-status-success';
+                icon.textContent = '🟢';
+                statusText.textContent = 'API جاهز للاستخدام';
+                updateValidationStatus('apiConnectionStatus', 'success', 'جاهز');
+            }
+        }
+
+        // دالة لتحديث حالة التحقق
+        function updateValidationStatus(elementId, status, text) {
+            const element = document.getElementById(elementId);
+            element.textContent = text;
+            element.className = `validation-status validation-${status}`;
+        }
+
+        // دالة للتحقق من صحة البيانات
+        function validateApiData(data) {
+            const validationResults = {
+                priceData: false,
+                indicatorsData: false,
+                dataQuality: false
+            };
+
+            // التحقق من بيانات الأسعار
+            if (data && data.analysis) {
+                const pairs = Object.keys(data.analysis);
+                if (pairs.length > 0) {
+                    const firstPair = data.analysis[pairs[0]];
+                    if (firstPair && firstPair.price && 
+                        firstPair.price.open && firstPair.price.high && 
+                        firstPair.price.low && firstPair.price.close) {
+                        validationResults.priceData = true;
+                        updateValidationStatus('priceDataStatus', 'success', 'متاح');
+                    } else {
+                        updateValidationStatus('priceDataStatus', 'error', 'بيانات ناقصة');
+                    }
+                } else {
+                    updateValidationStatus('priceDataStatus', 'warning', 'لا توجد بيانات');
+                }
+            } else {
+                updateValidationStatus('priceDataStatus', 'error', 'غير متاح');
+            }
+
+            // التحقق من بيانات المؤشرات
+            if (data && data.analysis) {
+                const pairs = Object.keys(data.analysis);
+                let hasIndicators = false;
+                pairs.forEach(pair => {
+                    const analysis = data.analysis[pair];
+                    if (analysis && analysis.indicators && Object.keys(analysis.indicators).length > 0) {
+                        hasIndicators = true;
+                    }
+                });
+                
+                if (hasIndicators) {
+                    validationResults.indicatorsData = true;
+                    updateValidationStatus('indicatorsDataStatus', 'success', 'متاح');
+                } else {
+                    updateValidationStatus('indicatorsDataStatus', 'warning', 'محدود');
+                }
+            } else {
+                updateValidationStatus('indicatorsDataStatus', 'error', 'غير متاح');
+            }
+
+            // تقييم جودة البيانات
+            if (validationResults.priceData && validationResults.indicatorsData) {
+                validationResults.dataQuality = true;
+                updateValidationStatus('dataQualityStatus', 'success', 'ممتاز');
+            } else if (validationResults.priceData || validationResults.indicatorsData) {
+                updateValidationStatus('dataQualityStatus', 'warning', 'متوسط');
+            } else {
+                updateValidationStatus('dataQualityStatus', 'error', 'ضعيف');
+            }
+
+            return validationResults;
+        }
+
+        // دالة لعرض استجابة API
+        function showApiResponse(response, success = true) {
+            const panel = document.getElementById('apiResponsePanel');
+            const content = document.getElementById('apiResponseContent');
+            
+            if (success) {
+                panel.className = 'api-response-panel response-success';
+                content.innerHTML = `
+                    <div style="color: #155724;">
+                        <strong>✅ نجح الطلب:</strong><br>
+                        <pre style="margin: 5px 0; white-space: pre-wrap;">${JSON.stringify(response, null, 2)}</pre>
+                    </div>
+                `;
+            } else {
+                panel.className = 'api-response-panel response-error';
+                content.innerHTML = `
+                    <div style="color: #721c24;">
+                        <strong>❌ فشل الطلب:</strong><br>
+                        <pre style="margin: 5px 0; white-space: pre-wrap;">${JSON.stringify(response, null, 2)}</pre>
+                    </div>
+                `;
+            }
+            
+            panel.style.display = 'block';
+            
+            // إخفاء اللوحة بعد 10 ثوان
+            setTimeout(() => {
+                panel.style.display = 'none';
+            }, 10000);
+        }
+
+        // دالة لاختبار API مع بيانات تجريبية
+        function testApiWithSampleData() {
+            const indicator = document.getElementById('apiStatusIndicator');
+            indicator.className = 'api-status-indicator api-status-loading';
+            document.getElementById('apiStatusText').textContent = 'جاري اختبار API مع بيانات تجريبية...';
+            
+            // إنشاء بيانات تجريبية
+            const testData = {
+                pair: 'EUR/USD',
+                signal: 'CALL',
+                entry_price: 1.0850,
+                entry_time: '10:16:00',
+                exit_time: '10:17:00',
+                indicators_data: {
+                    open: 1.0845,
+                    high: 1.0855,
+                    low: 1.0840,
+                    close: 1.0850,
+                    rsi: 35,
+                    macd: 0.0012
+                }
+            };
+            
+            fetch('/api/trades/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(testData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    indicator.className = 'api-status-indicator api-status-success';
+                    document.getElementById('apiStatusText').textContent = 'اختبار API نجح - البيانات تصل بشكل صحيح';
+                    showApiResponse(data, true);
+                    updateValidationStatus('apiConnectionStatus', 'success', 'يعمل بشكل طبيعي');
+                } else {
+                    indicator.className = 'api-status-indicator api-status-error';
+                    document.getElementById('apiStatusText').textContent = 'اختبار API فشل';
+                    showApiResponse(data, false);
+                    updateValidationStatus('apiConnectionStatus', 'error', 'فشل الاختبار');
+                }
+            })
+            .catch(error => {
+                indicator.className = 'api-status-indicator api-status-error';
+                document.getElementById('apiStatusText').textContent = 'خطأ في اختبار API';
+                showApiResponse({error: error.message}, false);
+                updateValidationStatus('apiConnectionStatus', 'error', 'خطأ في الاتصال');
+            });
+        }
+
+        // دالة لتبديل نوع الصفقات
+        function switchTradeType(type) {
+            // تحديث التبويبات
+            document.querySelectorAll('.trade-type-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // تحديث المحتوى
+            document.querySelectorAll('.trade-type-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (type === 'real') {
+                document.getElementById('realTradesContent').classList.add('active');
+            } else {
+                document.getElementById('testTradesContent').classList.add('active');
+            }
+            
+            // تحديث الإحصائيات
+            updateTradeStatistics();
+        }
+
+        // دالة لتبديل نوع الصفقات المعلقة
+        function switchPendingTradesType(type) {
+            // تحديث التبويبات
+            document.querySelectorAll('.trade-type-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // تحديث المحتوى
+            document.querySelectorAll('.trade-type-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (type === 'real') {
+                document.getElementById('pendingRealTradesList').classList.add('active');
+            } else {
+                document.getElementById('pendingTestTradesList').classList.add('active');
+            }
+            
+            // تحديث قائمة الصفقات المعلقة
+            loadPendingTrades();
+        }
+
+        // دالة لتحديث إحصائيات الصفقات
+        function updateTradeStatistics() {
+            fetch('/api/trades/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const stats = data.statistics;
+                        
+                        // تحديث إحصائيات الصفقات الحقيقية
+                        const realTrades = stats.real_trades || 0;
+                        const successfulRealTrades = stats.successful_real_trades || 0;
+                        const realSuccessRate = realTrades > 0 ? Math.round((successfulRealTrades / realTrades) * 100) : 0;
+                        const pendingRealTrades = stats.pending_real_trades || 0;
+                        
+                        document.getElementById('totalRealTrades').textContent = realTrades;
+                        document.getElementById('successfulRealTrades').textContent = successfulRealTrades;
+                        document.getElementById('realSuccessRate').textContent = realSuccessRate + '%';
+                        document.getElementById('pendingRealTrades').textContent = pendingRealTrades;
+                        
+                        // تحديث إحصائيات الصفقات التجريبية
+                        const testTrades = stats.test_trades || 0;
+                        const successfulTestTrades = stats.successful_test_trades || 0;
+                        const testSuccessRate = testTrades > 0 ? Math.round((successfulTestTrades / testTrades) * 100) : 0;
+                        const pendingTestTrades = stats.pending_test_trades || 0;
+                        
+                        document.getElementById('totalTestTrades').textContent = testTrades;
+                        document.getElementById('successfulTestTrades').textContent = successfulTestTrades;
+                        document.getElementById('testSuccessRate').textContent = testSuccessRate + '%';
+                        document.getElementById('pendingTestTrades').textContent = pendingTestTrades;
+                    }
+                })
+                .catch(error => {
+                    console.error('خطأ في تحديث إحصائيات الصفقات:', error);
+                });
+        }
+
+        // دالة لعرض تشخيص API
+        function showApiDiagnostics() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            // جمع معلومات التشخيص
+            const diagnostics = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                connection: navigator.onLine ? 'متصل' : 'غير متصل',
+                apiStatus: document.getElementById('apiStatusText').textContent,
+                validationStatus: {
+                    connection: document.getElementById('apiConnectionStatus').textContent,
+                    priceData: document.getElementById('priceDataStatus').textContent,
+                    indicators: document.getElementById('indicatorsDataStatus').textContent,
+                    quality: document.getElementById('dataQualityStatus').textContent
+                }
+            };
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">🔧 تشخيص API المتقدم</h2>
+                        <span class="close" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</span>
+                    </div>
+                    
+                    <div class="data-validation-panel">
+                        <h4>📊 معلومات النظام</h4>
+                        <div class="validation-item">
+                            <span class="validation-label">الوقت:</span>
+                            <span class="validation-status">${new Date().toLocaleString('ar-EG')}</span>
+                        </div>
+                        <div class="validation-item">
+                            <span class="validation-label">حالة الاتصال:</span>
+                            <span class="validation-status validation-${navigator.onLine ? 'success' : 'error'}">${diagnostics.connection}</span>
+                        </div>
+                        <div class="validation-item">
+                            <span class="validation-label">حالة API:</span>
+                            <span class="validation-status">${diagnostics.apiStatus}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="data-validation-panel">
+                        <h4>🔍 حالة البيانات</h4>
+                        <div class="validation-item">
+                            <span class="validation-label">اتصال API:</span>
+                            <span class="validation-status validation-${diagnostics.validationStatus.connection === 'جاهز' || diagnostics.validationStatus.connection === 'متصل' ? 'success' : 'error'}">${diagnostics.validationStatus.connection}</span>
+                        </div>
+                        <div class="validation-item">
+                            <span class="validation-label">بيانات الأسعار:</span>
+                            <span class="validation-status validation-${diagnostics.validationStatus.priceData === 'متاح' ? 'success' : 'warning'}">${diagnostics.validationStatus.priceData}</span>
+                        </div>
+                        <div class="validation-item">
+                            <span class="validation-label">بيانات المؤشرات:</span>
+                            <span class="validation-status validation-${diagnostics.validationStatus.indicators === 'متاح' ? 'success' : 'warning'}">${diagnostics.validationStatus.indicators}</span>
+                        </div>
+                        <div class="validation-item">
+                            <span class="validation-label">جودة البيانات:</span>
+                            <span class="validation-status validation-${diagnostics.validationStatus.quality === 'ممتاز' ? 'success' : diagnostics.validationStatus.quality === 'متوسط' ? 'warning' : 'error'}">${diagnostics.validationStatus.quality}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                        <h4>💡 نصائح لتحسين الأداء:</h4>
+                        <ul style="margin: 10px 0; padding-right: 20px;">
+                            <li>تأكد من اتصال الإنترنت المستقر</li>
+                            <li>تحقق من صحة مفتاح API</li>
+                            <li>راقب حد الطلبات المسموح</li>
+                            <li>استخدم "فحص API" بانتظام</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button class="btn btn-refresh" onclick="checkApiConnection(); this.parentElement.parentElement.parentElement.remove();">
+                            🔄 إعادة فحص
+                        </button>
+                        <button class="btn btn-start" onclick="testApiWithSampleData(); this.parentElement.parentElement.parentElement.remove();">
+                            🧪 اختبار البيانات
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // إغلاق النافذة عند النقر خارجها
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            };
         }
 
         function showLoading(title, message) {
@@ -1165,18 +2379,36 @@
             // تعطيل الزر
             refreshBtn.disabled = true;
 
+            // تحديث مؤشر حالة API
+            const indicator = document.getElementById('apiStatusIndicator');
+            indicator.className = 'api-status-indicator api-status-loading';
+            document.getElementById('apiStatusText').textContent = 'جاري جلب البيانات من API...';
+
             showLoading('جاري تحديث النتائج...', 'يرجى الانتظار بينما نقوم بجلب أحدث البيانات');
             updateLoadingProgress(20, 'جاري الاتصال بالخادم...');
             
             fetch('/api/results')
-                .then(response => response.json())
+                .then(response => {
+                    updateLoadingProgress(40, 'تم استلام الاستجابة من الخادم...');
+                    return response.json();
+                })
                 .then(data => {
                     updateLoadingProgress(60, 'جاري معالجة البيانات...');
+                    
+                    // عرض استجابة API
+                    showApiResponse(data, true);
+                    
+                    // التحقق من صحة البيانات
+                    const validationResults = validateApiData(data);
                     
                     if (data.status === 'success' && data.analysis) {
                         updateLoadingProgress(80, 'جاري عرض النتائج...');
                         displayResults(data);
                         updateLoadingProgress(100, 'تم تحديث النتائج بنجاح!');
+                        
+                        // تحديث مؤشر النجاح
+                        indicator.className = 'api-status-indicator api-status-success';
+                        document.getElementById('apiStatusText').textContent = 'تم جلب البيانات بنجاح';
                         
                         setTimeout(() => {
                             hideLoading();
@@ -1186,6 +2418,10 @@
                     } else {
                         updateLoadingProgress(100, 'لا توجد نتائج متاحة');
                         document.getElementById('resultsGrid').innerHTML = '<div class="no-data">لا توجد نتائج متاحة</div>';
+                        
+                        // تحديث مؤشر التحذير
+                        indicator.className = 'api-status-indicator api-status-warning';
+                        document.getElementById('apiStatusText').textContent = 'لا توجد بيانات متاحة';
                         
                         setTimeout(() => {
                             hideLoading();
@@ -1197,7 +2433,15 @@
                 .catch(error => {
                     hideLoading();
                     console.error('Error:', error);
-                    alert('حدث خطأ في تحديث النتائج');
+                    
+                    // عرض خطأ API
+                    showApiResponse({error: error.message, status: 'failed'}, false);
+                    
+                    // تحديث مؤشر الخطأ
+                    indicator.className = 'api-status-indicator api-status-error';
+                    document.getElementById('apiStatusText').textContent = 'خطأ في جلب البيانات';
+                    
+                    alert('حدث خطأ في تحديث النتائج: ' + error.message);
                     // إعادة تفعيل الزر
                     document.getElementById('refreshBtn').disabled = false;
                 });
@@ -1291,6 +2535,10 @@
                 ${analysis.trade_timing ? `
                 <div class="timing-section">
                     <div class="timing-item">
+                        <span class="timing-label">📊 وقت التحليل:</span>
+                        <span class="timing-value">${analysis.trade_timing.analysis_time}</span>
+                    </div>
+                    <div class="timing-item">
                         <span class="timing-label">⏰ وقت الدخول:</span>
                         <span class="timing-value">${analysis.trade_timing.entry_time}</span>
                     </div>
@@ -1301,6 +2549,10 @@
                     <div class="timing-item">
                         <span class="timing-label">⏱️ المدة:</span>
                         <span class="timing-value">${analysis.trade_timing.duration} دقيقة</span>
+                    </div>
+                    <div class="timing-item">
+                        <span class="timing-label">⏳ وقت الانتظار:</span>
+                        <span class="timing-value">${analysis.trade_timing.wait_time}</span>
                     </div>
                 </div>
                 ` : ''}
@@ -1556,6 +2808,868 @@
                     ` : ''}
                 </div>
             `;
+        }
+
+        // دوال تقييم الصفقات
+        function loadPendingTrades() {
+            console.log('🔄 جاري تحميل الصفقات المعلقة...');
+            fetch('/api/trades/pending')
+                .then(response => {
+                    console.log('📡 استجابة من الخادم:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📊 بيانات الصفقات:', data);
+                    if (data.status === 'success') {
+                        // فصل الصفقات حسب النوع
+                        const realTrades = data.trades.filter(trade => trade.trade_type === 'real');
+                        const testTrades = data.trades.filter(trade => trade.trade_type === 'test');
+                        
+                        // عرض الصفقات الحقيقية
+                        displayPendingTrades(realTrades, 'pendingRealTradesContent');
+                        
+                        // عرض الصفقات التجريبية
+                        displayPendingTrades(testTrades, 'pendingTestTradesContent');
+                        
+                        loadTradeStatistics();
+                        updateTrainingStatus(); // تحديث حالة التدريب
+                        updateTradeStatistics(); // تحديث إحصائيات الصفقات
+                    } else {
+                        console.error('خطأ في تحميل الصفقات:', data.message);
+                        alert('خطأ في تحميل الصفقات: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('خطأ في تحميل الصفقات:', error);
+                    alert('خطأ في الاتصال بالخادم: ' + error.message);
+                });
+        }
+
+        function displayPendingTrades(trades, containerId = 'pendingTradesList') {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error(`عنصر ${containerId} غير موجود`);
+                return;
+            }
+            
+            console.log('📋 عرض الصفقات:', trades);
+            
+            if (!trades || trades.length === 0) {
+                container.innerHTML = '<div class="no-data">لا توجد صفقات معلقة</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            trades.forEach(trade => {
+                const tradeCard = createTradeCard(trade);
+                container.appendChild(tradeCard);
+            });
+        }
+
+        function createTradeCard(trade) {
+            const card = document.createElement('div');
+            card.className = 'trade-card';
+            
+            const signalClass = trade.signal === 'CALL' ? 'signal-call' : 'signal-put';
+            
+            // تحديد نوع الصفقة
+            const tradeTypeBadge = trade.trade_type === 'real' ? 
+                '<span class="trade-type-badge trade-type-real">حقيقية</span>' : 
+                '<span class="trade-type-badge trade-type-test">تجريبية</span>';
+            
+            card.innerHTML = `
+                <div class="trade-header">
+                    <div class="trade-pair">${trade.pair} ${tradeTypeBadge}</div>
+                    <div class="trade-signal ${signalClass}">${trade.signal}</div>
+                </div>
+                
+                <div class="trade-details">
+                    <div class="trade-detail-item">
+                        <div class="trade-detail-label">سعر الدخول</div>
+                        <div class="trade-detail-value">${trade.entry_price}</div>
+                    </div>
+                    <div class="trade-detail-item">
+                        <div class="trade-detail-label">وقت الدخول</div>
+                        <div class="trade-detail-value">${trade.entry_time}</div>
+                    </div>
+                    <div class="trade-detail-item">
+                        <div class="trade-detail-label">وقت الخروج</div>
+                        <div class="trade-detail-value">${trade.exit_time}</div>
+                    </div>
+                    <div class="trade-detail-item">
+                        <div class="trade-detail-label">تاريخ الإنشاء</div>
+                        <div class="trade-detail-value">${new Date(trade.created_at).toLocaleString('ar-EG')}</div>
+                    </div>
+                </div>
+                
+                <!-- قسم الملاحظات الذكية -->
+                <div class="ai-notes-section">
+                    <div class="ai-notes-header">
+                        <span>🤖 ملاحظات ذكية:</span>
+                    </div>
+                    <textarea class="ai-notes-content" id="ai-notes-${trade.id}" readonly>${trade.ai_notes || 'لا توجد ملاحظات ذكية'}</textarea>
+                    <div class="ai-notes-actions">
+                        <button class="btn-ai-notes primary" onclick="editAiNotes('${trade.id}')">✏️ تعديل</button>
+                        <button class="btn-ai-notes secondary" onclick="regenerateAiNotes('${trade.id}')">🔄 إعادة توليد</button>
+                    </div>
+                </div>
+                
+                <div class="trade-evaluation">
+                    <div class="evaluation-buttons">
+                        <button class="btn-evaluate btn-success" onclick="evaluateTrade('${trade.id}', 'successful')">
+                            ✅ رابحة
+                        </button>
+                        <button class="btn-evaluate btn-failed" onclick="evaluateTrade('${trade.id}', 'failed')">
+                            ❌ خاسرة
+                        </button>
+                        <button class="cancel-evaluation-btn" onclick="evaluateTrade('${trade.id}', 'cancelled')">
+                            🚫 إلغاء
+                        </button>
+                    </div>
+                    <div class="evaluation-instructions">
+                        <small style="color: #666; font-style: italic;">
+                            💡 اختر التقييم المناسب: رابحة إذا حققت الربح، خاسرة إذا لم تحقق الربح، أو إلغاء إذا لم ترد التقييم
+                        </small>
+                    </div>
+                    <textarea class="evaluation-notes" placeholder="ملاحظاتك الشخصية (اختياري)" id="user-notes-${trade.id}"></textarea>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function evaluateTrade(tradeId, evaluation) {
+            const userNotes = document.getElementById(`user-notes-${tradeId}`).value;
+            
+            // رسائل تأكيد مختلفة حسب التقييم
+            let confirmMessage = '';
+            if (evaluation === 'successful') {
+                confirmMessage = 'هل أنت متأكد من أن هذه الصفقة رابحة؟';
+            } else if (evaluation === 'failed') {
+                confirmMessage = 'هل أنت متأكد من أن هذه الصفقة خاسرة؟';
+            } else if (evaluation === 'cancelled') {
+                confirmMessage = 'هل أنت متأكد من إلغاء تقييم هذه الصفقة؟';
+            }
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+            
+            fetch('/api/trades/evaluate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    trade_id: tradeId,
+                    evaluation: evaluation,
+                    user_notes: userNotes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    let successMessage = '';
+                    if (evaluation === 'successful') {
+                        successMessage = '✅ تم تقييم الصفقة كرابحة';
+                    } else if (evaluation === 'failed') {
+                        successMessage = '❌ تم تقييم الصفقة كخاسرة';
+                    } else if (evaluation === 'cancelled') {
+                        successMessage = '🚫 تم إلغاء تقييم الصفقة';
+                    }
+                    
+                    alert(successMessage);
+                    
+                    // تحديث الإحصائيات
+                    updateTrainingStatus();
+                    updateTradeStatistics();
+                    loadPendingTrades(); // إعادة تحميل القائمة
+                } else {
+                    alert('خطأ في تقييم الصفقة: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في تقييم الصفقة:', error);
+                alert('حدث خطأ في تقييم الصفقة');
+            });
+        }
+
+        // دالة لتعديل الملاحظات الذكية
+        function editAiNotes(tradeId) {
+            const textarea = document.getElementById(`ai-notes-${tradeId}`);
+            if (textarea.readOnly) {
+                textarea.readOnly = false;
+                textarea.style.background = '#fff';
+                textarea.style.border = '2px solid #667eea';
+                textarea.focus();
+            } else {
+                textarea.readOnly = true;
+                textarea.style.background = '#f8f9fa';
+                textarea.style.border = '1px solid #ddd';
+                
+                // حفظ التعديلات
+                const updatedNotes = textarea.value;
+                console.log(`تم تحديث الملاحظات للصفقة ${tradeId}:`, updatedNotes);
+            }
+        }
+
+        // دالة لإعادة توليد الملاحظات الذكية
+        function regenerateAiNotes(tradeId) {
+            if (!confirm('هل تريد إعادة توليد الملاحظات الذكية؟ سيتم فقدان التعديلات الحالية.')) {
+                return;
+            }
+            
+            // إظهار مؤشر التحميل
+            const textarea = document.getElementById(`ai-notes-${tradeId}`);
+            textarea.value = 'جاري إعادة توليد الملاحظات الذكية...';
+            textarea.style.background = '#fff3cd';
+            
+            // محاكاة إعادة التوليد (يمكن ربطها بـ API حقيقي)
+            setTimeout(() => {
+                const newNotes = generateNewAiNotes();
+                textarea.value = newNotes;
+                textarea.style.background = '#f8f9fa';
+                console.log(`تم إعادة توليد الملاحظات للصفقة ${tradeId}`);
+            }, 2000);
+        }
+
+        // دالة لتوليد ملاحظات ذكية جديدة
+        function generateNewAiNotes() {
+            const notes = [
+                "📈 تحليل تقني: السوق يظهر إشارات قوية",
+                "📊 مؤشرات متوازنة: RSI و MACD في نطاق صحي",
+                "⚡ تقلبات منخفضة: سوق مستقر نسبياً",
+                "💡 نصيحة: راقب مستويات الدعم والمقاومة",
+                "🔍 انتبه: قد تتأثر بالبيانات الاقتصادية القادمة"
+            ];
+            
+            return notes[Math.floor(Math.random() * notes.length)] + " | " + 
+                   notes[Math.floor(Math.random() * notes.length)] + " | " +
+                   notes[Math.floor(Math.random() * notes.length)];
+        }
+
+        function loadTradeStatistics() {
+            fetch('/api/trades/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const stats = data.statistics;
+                        document.getElementById('totalTrades').textContent = stats.total_trades;
+                        document.getElementById('successfulTrades').textContent = stats.successful_trades;
+                        document.getElementById('successRate').textContent = stats.success_rate + '%';
+                        document.getElementById('pendingTrades').textContent = stats.pending_evaluations;
+                    }
+                })
+                .catch(error => {
+                    console.error('خطأ في تحميل الإحصائيات:', error);
+                });
+        }
+
+        function showTradeHistory() {
+            fetch('/api/trades/history')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        displayTradeHistory(data.trades);
+                    } else {
+                        alert('خطأ في تحميل التاريخ: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('خطأ في تحميل التاريخ:', error);
+                    alert('حدث خطأ في تحميل التاريخ');
+                });
+        }
+
+        function displayTradeHistory(trades) {
+            const modal = document.createElement('div');
+            modal.className = 'trade-history-modal';
+            modal.style.display = 'block';
+            
+            const historyHtml = trades.map(trade => {
+                const statusClass = trade.user_evaluation === 'successful' ? 'successful' : 'failed';
+                const statusText = trade.user_evaluation === 'successful' ? 'ناجحة' : 'خاسرة';
+                
+                return `
+                    <div class="history-trade-item ${statusClass}">
+                        <div class="history-trade-header">
+                            <div>
+                                <strong>${trade.pair}</strong> - ${trade.signal}
+                            </div>
+                            <div class="history-trade-status status-${trade.user_evaluation}">
+                                ${statusText}
+                            </div>
+                        </div>
+                        <div class="trade-details">
+                            <div class="trade-detail-item">
+                                <div class="trade-detail-label">سعر الدخول</div>
+                                <div class="trade-detail-value">${trade.entry_price}</div>
+                            </div>
+                            <div class="trade-detail-item">
+                                <div class="trade-detail-label">وقت الدخول</div>
+                                <div class="trade-detail-value">${trade.entry_time}</div>
+                            </div>
+                            <div class="trade-detail-item">
+                                <div class="trade-detail-label">وقت الخروج</div>
+                                <div class="trade-detail-value">${trade.exit_time}</div>
+                            </div>
+                            <div class="trade-detail-item">
+                                <div class="trade-detail-label">تاريخ التقييم</div>
+                                <div class="trade-detail-value">${new Date(trade.evaluated_at).toLocaleString('ar-EG')}</div>
+                            </div>
+                        </div>
+                        ${trade.notes ? `
+                        <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                            <strong>ملاحظات:</strong> ${trade.notes}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            modal.innerHTML = `
+                <div class="trade-history-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">📊 تاريخ الصفقات</h2>
+                        <span class="close" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</span>
+                    </div>
+                    <div class="pending-trades-list">
+                        ${historyHtml || '<div class="no-data">لا توجد صفقات في التاريخ</div>'}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // إغلاق النافذة عند النقر خارجها
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            };
+        }
+
+        // إضافة زر لتقييم الصفقات في الواجهة الرئيسية
+        function toggleTradeEvaluation() {
+            const panel = document.getElementById('tradeEvaluationPanel');
+            if (!panel) {
+                console.error('عنصر tradeEvaluationPanel غير موجود');
+                alert('خطأ: قسم تقييم الصفقات غير موجود');
+                return;
+            }
+            
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                panel.style.display = 'block';
+                console.log('تم إظهار قسم تقييم الصفقات');
+                loadPendingTrades();
+                updateTrainingStatus(); // تحديث حالة التدريب
+            } else {
+                panel.style.display = 'none';
+                console.log('تم إخفاء قسم تقييم الصفقات');
+            }
+        }
+
+        // دالة جديدة لتحديث حالة التدريب
+        function updateTrainingStatus() {
+            fetch('/api/ai/training-status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('trainingStatusText').textContent = data.training_status;
+                        document.getElementById('trainingProgress').style.width = data.progress_percentage + '%';
+                        document.getElementById('trainingProgress').textContent = data.progress_percentage + '%';
+                        
+                        // تحديث الإحصائيات
+                        const stats = data.statistics;
+                        document.getElementById('totalTrades').textContent = stats.total_trades;
+                        document.getElementById('successfulTrades').textContent = stats.successful_trades;
+                        document.getElementById('successRate').textContent = stats.success_rate + '%';
+                        document.getElementById('pendingTrades').textContent = stats.pending_evaluations;
+                        
+                        // إضافة توصيات
+                        const recommendations = data.recommendations;
+                        let recommendationText = '';
+                        if (recommendations.needs_more_data) {
+                            recommendationText = '💡 تحتاج إلى المزيد من الصفقات للتدريب';
+                        } else if (recommendations.has_pending) {
+                            recommendationText = '⏳ يوجد صفقات معلقة تحتاج تقييم';
+                        } else if (recommendations.can_train) {
+                            recommendationText = '✅ جاهز للتدريب - يمكنك تدريب النماذج الآن';
+                        }
+                        
+                        // إضافة نص التوصية إذا كان موجوداً
+                        const trainingStatus = document.getElementById('trainingStatus');
+                        let recommendationDiv = trainingStatus.querySelector('.recommendation');
+                        if (!recommendationDiv) {
+                            recommendationDiv = document.createElement('div');
+                            recommendationDiv.className = 'recommendation';
+                            recommendationDiv.style.marginTop = '10px';
+                            recommendationDiv.style.fontSize = '14px';
+                            recommendationDiv.style.color = 'rgba(255, 255, 255, 0.9)';
+                            trainingStatus.appendChild(recommendationDiv);
+                        }
+                        recommendationDiv.textContent = recommendationText;
+                    }
+                })
+                .catch(error => {
+                    console.error('خطأ في تحديث حالة التدريب:', error);
+                });
+        }
+
+        // دالة جديدة لعرض تحليلات الصفقات
+        function showTradeAnalytics() {
+            fetch('/api/trades/analytics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        displayTradeAnalyticsModal(data);
+                    } else {
+                        alert('خطأ في تحميل التحليلات: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('خطأ في تحميل التحليلات:', error);
+                    alert('حدث خطأ في تحميل التحليلات');
+                });
+        }
+
+        function displayTradeAnalyticsModal(data) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            // تحليل الأزواج
+            const pairAnalysis = data.pair_analysis || {};
+            const pairHtml = Object.keys(pairAnalysis).map(pair => {
+                const analysis = pairAnalysis[pair];
+                return `
+                    <div class="performance-card">
+                        <h4>${pair}</h4>
+                        <div class="performance-metric">
+                            <span class="metric-label">إجمالي الصفقات:</span>
+                            <span class="metric-value">${analysis.total}</span>
+                        </div>
+                        <div class="performance-metric">
+                            <span class="metric-label">الصفقات الناجحة:</span>
+                            <span class="metric-value">${analysis.successful}</span>
+                        </div>
+                        <div class="performance-metric">
+                            <span class="metric-label">معدل النجاح:</span>
+                            <span class="metric-value" style="color: ${analysis.success_rate > 60 ? '#28a745' : '#dc3545'}">
+                                ${analysis.success_rate}%
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // تحليل الإشارات
+            const signalAnalysis = data.signal_analysis || {};
+            const signalHtml = Object.keys(signalAnalysis).map(signal => {
+                const analysis = signalAnalysis[signal];
+                return `
+                    <div class="performance-card">
+                        <h4>${signal === 'CALL' ? 'صعود (CALL)' : 'هبوط (PUT)'}</h4>
+                        <div class="performance-metric">
+                            <span class="metric-label">إجمالي الصفقات:</span>
+                            <span class="metric-value">${analysis.total}</span>
+                        </div>
+                        <div class="performance-metric">
+                            <span class="metric-label">الصفقات الناجحة:</span>
+                            <span class="metric-value">${analysis.successful}</span>
+                        </div>
+                        <div class="performance-metric">
+                            <span class="metric-label">معدل النجاح:</span>
+                            <span class="metric-value" style="color: ${analysis.success_rate > 60 ? '#28a745' : '#dc3545'}">
+                                ${analysis.success_rate}%
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">📊 تحليلات الصفقات المتقدمة</h2>
+                        <span class="close" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</span>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <h3>📈 تحليل الأزواج</h3>
+                        <div class="performance-grid">
+                            ${pairHtml || '<div class="no-data">لا توجد بيانات كافية</div>'}
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <h3>🎯 تحليل الإشارات</h3>
+                        <div class="performance-grid">
+                            ${signalHtml || '<div class="no-data">لا توجد بيانات كافية</div>'}
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                        <h4>📊 الإحصائيات العامة</h4>
+                        <div class="performance-metric">
+                            <span class="metric-label">إجمالي الصفقات المحللة:</span>
+                            <span class="metric-value">${data.total_trades_analyzed}</span>
+                        </div>
+                        <div class="performance-metric">
+                            <span class="metric-label">تاريخ التحليل:</span>
+                            <span class="metric-value">${new Date(data.analysis_date).toLocaleString('ar-EG')}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // إغلاق النافذة عند النقر خارجها
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            };
+        }
+
+        function trainAIWithEvaluations() {
+            // التحقق من حالة التدريب أولاً
+            fetch('/api/ai/training-status')
+                .then(response => response.json())
+                .then(statusData => {
+                    if (statusData.status === 'success') {
+                        const recommendations = statusData.recommendations;
+                        
+                        if (!recommendations.can_train) {
+                            if (recommendations.needs_more_data) {
+                                alert('❌ تحتاج إلى المزيد من الصفقات للتدريب\nالحد الأدنى: 10 صفقات مقيمة');
+                                return;
+                            } else if (recommendations.has_pending) {
+                                alert('⏳ يوجد صفقات معلقة تحتاج تقييم\nيرجى تقييم جميع الصفقات المعلقة أولاً');
+                                return;
+                            }
+                        }
+                        
+                        // المتابعة مع التدريب
+                        showLoading('تدريب النماذج...', 'جاري تدريب الذكاء الاصطناعي على تقييمات الصفقات');
+                        updateLoadingProgress(10, 'جاري إرسال طلب التدريب...');
+
+                        fetch('/api/ai/train-evaluations', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            updateLoadingProgress(80, 'جاري معالجة النتائج...');
+                            
+                            if (data.status === 'success') {
+                                updateLoadingProgress(100, 'تم التدريب بنجاح!');
+                                setTimeout(() => {
+                                    hideLoading();
+                                    
+                                    // عرض تفاصيل أكثر عن التدريب
+                                    let message = '✅ تم تدريب النماذج بنجاح!\n\n';
+                                    message += `📊 إحصائيات التدريب:\n`;
+                                    message += `• إجمالي الصفقات: ${data.statistics.total_trades}\n`;
+                                    message += `• الصفقات الناجحة: ${data.statistics.successful_trades}\n`;
+                                    message += `• معدل النجاح: ${data.statistics.success_rate}%\n\n`;
+                                    
+                                    if (data.ai_metrics && data.ai_metrics.model_metrics) {
+                                        message += `🤖 أداء النماذج:\n`;
+                                        Object.keys(data.ai_metrics.model_metrics).forEach(model => {
+                                            const accuracy = (data.ai_metrics.model_metrics[model].accuracy * 100).toFixed(1);
+                                            message += `• ${model}: ${accuracy}% دقة\n`;
+                                        });
+                                    }
+                                    
+                                    alert(message);
+                                    loadTradeStatistics(); // تحديث الإحصائيات
+                                    updateTrainingStatus(); // تحديث حالة التدريب
+                                }, 1000);
+                            } else {
+                                hideLoading();
+                                alert('❌ خطأ في التدريب: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            hideLoading();
+                            console.error('Error:', error);
+                            alert('حدث خطأ في تدريب النماذج');
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('خطأ في التحقق من حالة التدريب:', error);
+                    alert('حدث خطأ في التحقق من حالة التدريب');
+                });
+        }
+
+        function createTestTrade() {
+            console.log('🧪 إنشاء صفقة تجريبية...');
+            
+            const testTrade = {
+                pair: 'EUR/USD',
+                signal: 'CALL',
+                entry_price: 1.0850,
+                entry_time: '10:16:00',
+                exit_time: '10:17:00',
+                indicators_data: {
+                    open: 1.0845,
+                    high: 1.0855,
+                    low: 1.0840,
+                    close: 1.0850,
+                    rsi: 35,
+                    macd: 0.0012
+                }
+            };
+            
+            fetch('/api/trades/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(testTrade)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('تم إنشاء صفقة تجريبية بنجاح!\nID: ' + data.trade_id);
+                    loadPendingTrades(); // إعادة تحميل الصفقات
+                } else {
+                    alert('خطأ في إنشاء الصفقة: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ في إنشاء الصفقة التجريبية');
+            });
+        }
+
+        // دالة جديدة لعرض تقدم التدريب
+        function showTrainingProgress() {
+            fetch('/api/ai/performance')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        displayTrainingProgressModal(data.performance);
+                    } else {
+                        alert('خطأ في الحصول على بيانات التدريب');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('حدث خطأ في الحصول على بيانات التدريب');
+                });
+        }
+
+        function displayTrainingProgressModal(performance) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            const modelMetrics = performance.model_metrics || {};
+            const metricsHtml = Object.keys(modelMetrics).map(modelName => {
+                const metrics = modelMetrics[modelName];
+                const accuracy = (metrics.accuracy * 100).toFixed(2);
+                const loss = metrics.loss ? metrics.loss.toFixed(4) : 'غير متاح';
+                
+                return `
+                    <div class="performance-card">
+                        <h4>${modelName.replace('_', ' ').toUpperCase()}</h4>
+                        <div class="performance-metric">
+                            <span class="metric-label">الدقة:</span>
+                            <span class="metric-value">${accuracy}%</span>
+                        </div>
+                        <div class="performance-metric">
+                            <span class="metric-label">الخسارة:</span>
+                            <span class="metric-value">${loss}</span>
+                        </div>
+                        <div class="performance-metric">
+                            <span class="metric-label">الحالة:</span>
+                            <span class="metric-value" style="color: ${accuracy > 60 ? '#28a745' : '#dc3545'}">
+                                ${accuracy > 60 ? 'ممتاز' : 'يحتاج تحسين'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">📈 تقدم تدريب النماذج</h2>
+                        <span class="close" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</span>
+                    </div>
+                    <div class="performance-grid">
+                        ${metricsHtml}
+                    </div>
+                    <div class="performance-metric">
+                        <span class="metric-label">إجمالي النماذج:</span>
+                        <span class="metric-value">${performance.total_models || 0}</span>
+                    </div>
+                    <div class="performance-metric">
+                        <span class="metric-label">النماذج المحملة:</span>
+                        <span class="metric-value">${performance.models_loaded ? 'نعم' : 'لا'}</span>
+                    </div>
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                        <h4>💡 نصائح لتحسين التدريب:</h4>
+                        <ul style="margin: 10px 0; padding-right: 20px;">
+                            <li>تأكد من تقييم جميع الصفقات بدقة</li>
+                            <li>أضف ملاحظات مفيدة للصفقات</li>
+                            <li>قم بالتدريب بعد كل 10-20 صفقة جديدة</li>
+                            <li>راقب أداء النماذج بانتظام</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // إغلاق النافذة عند النقر خارجها
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            };
+        }
+
+        // دالة محسنة لعرض الصفقات مع تفاصيل أكثر
+        function createTradeCard(trade) {
+            const card = document.createElement('div');
+            card.className = 'trade-card';
+            
+            const signalClass = trade.signal === 'CALL' ? 'signal-call' : 'signal-put';
+            const signalText = trade.signal === 'CALL' ? 'صعود (CALL)' : 'هبوط (PUT)';
+            
+            // إضافة مؤشرات إضافية إذا كانت متاحة
+            let indicatorsHtml = '';
+            if (trade.indicators_data) {
+                Object.keys(trade.indicators_data).forEach(key => {
+                    const value = trade.indicators_data[key];
+                    if (value !== null && value !== undefined && key !== 'datetime') {
+                        indicatorsHtml += `
+                            <div class="trade-detail-item">
+                                <div class="trade-detail-label">${key.toUpperCase()}</div>
+                                <div class="trade-detail-value">${typeof value === 'number' ? value.toFixed(5) : value}</div>
+                            </div>
+                        `;
+                    }
+                });
+            }
+            
+            card.innerHTML = `
+                <div class="trade-header">
+                    <div class="trade-pair">${trade.pair}</div>
+                    <div class="trade-signal ${signalClass}">${signalText}</div>
+                </div>
+                
+                <div class="trade-details">
+                    <div class="trade-detail-item">
+                        <div class="trade-detail-label">سعر الدخول</div>
+                        <div class="trade-detail-value">${trade.entry_price}</div>
+                    </div>
+                    <div class="trade-detail-item">
+                        <div class="trade-detail-label">وقت الدخول</div>
+                        <div class="trade-detail-value">${trade.entry_time}</div>
+                    </div>
+                    <div class="trade-detail-item">
+                        <div class="trade-detail-label">وقت الخروج</div>
+                        <div class="trade-detail-value">${trade.exit_time}</div>
+                    </div>
+                    <div class="trade-detail-item">
+                        <div class="trade-detail-label">تاريخ الإنشاء</div>
+                        <div class="trade-detail-value">${new Date(trade.created_at).toLocaleString('ar-EG')}</div>
+                    </div>
+                </div>
+                
+                ${indicatorsHtml ? `
+                <div style="margin: 15px 0;">
+                    <div style="font-weight: bold; color: #667eea; margin-bottom: 10px;">📊 بيانات المؤشرات:</div>
+                    <div class="trade-details">
+                        ${indicatorsHtml}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="trade-evaluation">
+                    <div style="margin-bottom: 10px; font-weight: bold; color: #333;">
+                        🎯 قيم هذه الصفقة:
+                    </div>
+                    <div class="evaluation-buttons">
+                        <button class="btn-evaluate btn-success" onclick="evaluateTrade('${trade.id}', 'successful')">
+                            ✅ ناجحة - الصفقة حققت الربح المتوقع
+                        </button>
+                        <button class="btn-evaluate btn-failed" onclick="evaluateTrade('${trade.id}', 'failed')">
+                            ❌ خاسرة - الصفقة لم تحقق الربح المتوقع
+                        </button>
+                        <button class="cancel-evaluation-btn" onclick="evaluateTrade('${trade.id}', 'cancelled')">
+                            🚫 إلغاء
+                        </button>
+                    </div>
+                    <textarea class="evaluation-notes" placeholder="أضف ملاحظات مفيدة لتحسين النماذج (مثال: ظروف السوق، أسباب النجاح/الفشل، إلخ)" id="notes_${trade.id}"></textarea>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // دالة محسنة لتقييم الصفقات مع رسائل أوضح
+        function evaluateTrade(tradeId, evaluation) {
+            const notes = document.getElementById(`notes_${tradeId}`).value;
+            
+            if (!notes.trim()) {
+                const confirmMessage = evaluation === 'successful' 
+                    ? 'هل أنت متأكد من أن الصفقة ناجحة؟ يُفضل إضافة ملاحظات لتحسين النماذج.'
+                    : 'هل أنت متأكد من أن الصفقة خاسرة؟ يُفضل إضافة ملاحظات لتحسين النماذج.';
+                
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+            }
+            
+            // إظهار مؤشر التحميل
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'جاري التقييم...';
+            button.disabled = true;
+            
+            fetch('/api/trades/evaluate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    trade_id: tradeId,
+                    evaluation: evaluation,
+                    notes: notes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const message = evaluation === 'successful' 
+                        ? '✅ تم تقييم الصفقة كـ ناجحة!\nشكراً لمساهمتك في تحسين النماذج.'
+                        : '❌ تم تقييم الصفقة كـ خاسرة!\nشكراً لمساهمتك في تحسين النماذج.';
+                    
+                    alert(message);
+                    loadPendingTrades(); // إعادة تحميل القائمة
+                    loadTradeStatistics(); // تحديث الإحصائيات
+                    updateTrainingStatus(); // تحديث حالة التدريب
+                } else {
+                    alert('خطأ في تقييم الصفقة: ' + data.message);
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في تقييم الصفقة:', error);
+                alert('حدث خطأ في تقييم الصفقة');
+                button.textContent = originalText;
+                button.disabled = false;
+            });
         }
     </script>
 </body>

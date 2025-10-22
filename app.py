@@ -25,12 +25,19 @@ import cv2
 from PIL import Image
 import io
 import base64
+import matplotlib
+matplotlib.use('Agg')  # استخدام backend غير تفاعلي لتجنب مشاكل tkinter
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 from sklearn.cluster import KMeans
 import warnings
+import logging
 warnings.filterwarnings('ignore')
+
+# تعطيل سجلات Flask الزائدة
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+logging.getLogger('flask').setLevel(logging.ERROR)
 
 
 class AITradingSystem:
@@ -45,6 +52,7 @@ class AITradingSystem:
         self.label_encoders = {}
         self.performance_history = []
         self.model_metrics = {}
+        self.q_table = {}  # إضافة q_table للتعلم المعزز
         
         # إعدادات النماذج
         self.model_config = {
@@ -97,7 +105,7 @@ class AITradingSystem:
             for i in range(len(price_data) - 1):
                 feature_vector = []
                 
-                # إضافة بيانات الأسعار
+                # إضافة بيانات الأسعار (4 قيم ثابتة)
                 current_price = price_data[i]
                 next_price = price_data[i + 1]
                 
@@ -108,8 +116,13 @@ class AITradingSystem:
                     current_price['close']
                 ])
                 
-                # إضافة المؤشرات
+                # إضافة المؤشرات (تحديد عدد ثابت لتجنب مشكلة StandardScaler)
+                indicator_count = 0
+                max_indicators = 2  # تحديد عدد المؤشرات
+                
                 for indicator_name, indicator_data in indicators_data.items():
+                    if indicator_count >= max_indicators:
+                        break
                     if indicator_data and len(indicator_data) > i:
                         indicator_value = self._extract_indicator_value(indicator_data[i])
                         if indicator_value is not None:
@@ -118,6 +131,11 @@ class AITradingSystem:
                             feature_vector.append(0)
                     else:
                         feature_vector.append(0)
+                    indicator_count += 1
+                
+                # التأكد من أن عدد الميزات ثابت (4 أسعار + 2 مؤشرات = 6)
+                while len(feature_vector) < 6:
+                    feature_vector.append(0)
                 
                 # حساب العلامة (النتيجة)
                 price_change = (next_price['close'] - current_price['close']) / current_price['close']
@@ -573,6 +591,11 @@ class TradingAnalyzer:
         self.api_requests_limit = 8  # الحد الأقصى للطلبات في الدقيقة
         self.last_reset_time = datetime.now()
         
+        # نظام تقييم الصفقات
+        self.trade_history = []
+        self.pending_evaluations = []
+        self.load_trade_history()
+        
         # جميع أزواج العملات المتاحة
         self.available_pairs = [
             'EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CHF',
@@ -668,6 +691,212 @@ class TradingAnalyzer:
             'requests_remaining': self.api_requests_limit - self.api_requests_count,
             'time_remaining': max(0, time_remaining),
             'can_make_request': self._check_api_limit()
+        }
+    
+    def load_trade_history(self):
+        """تحميل تاريخ الصفقات"""
+        try:
+            if os.path.exists('trade_history.json'):
+                with open('trade_history.json', 'r', encoding='utf-8') as f:
+                    self.trade_history = json.load(f)
+                print(f"✅ تم تحميل {len(self.trade_history)} صفقة من التاريخ")
+        except Exception as e:
+            print(f"❌ خطأ في تحميل تاريخ الصفقات: {e}")
+            self.trade_history = []
+    
+    def save_trade_history(self):
+        """حفظ تاريخ الصفقات"""
+        try:
+            with open('trade_history.json', 'w', encoding='utf-8') as f:
+                json.dump(self.trade_history, f, ensure_ascii=False, indent=2)
+            print("✅ تم حفظ تاريخ الصفقات")
+        except Exception as e:
+            print(f"❌ خطأ في حفظ تاريخ الصفقات: {e}")
+    
+    def add_trade_for_evaluation(self, pair, signal, entry_price, entry_time, exit_time, indicators_data, trade_type='real'):
+        """إضافة صفقة للتقييم"""
+        trade_id = f"trade_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{pair.replace('/', '_')}"
+        
+        # إنشاء ملاحظات ذكية باستخدام الذكاء الاصطناعي
+        ai_notes = self.generate_ai_notes(pair, signal, entry_price, indicators_data)
+        
+        trade = {
+            'id': trade_id,
+            'pair': pair,
+            'signal': signal,
+            'entry_price': entry_price,
+            'entry_time': entry_time,
+            'exit_time': exit_time,
+            'indicators_data': indicators_data,
+            'trade_type': trade_type,  # 'real' or 'test'
+            'status': 'pending',  # pending, successful, failed, cancelled
+            'user_evaluation': None,
+            'ai_notes': ai_notes,
+            'user_notes': '',
+            'created_at': datetime.now().isoformat()
+        }
+        
+        self.pending_evaluations.append(trade)
+        print(f"📝 تم إضافة صفقة {trade_type} {pair} للتقييم: {trade_id}")
+        return trade_id
+    
+    def generate_ai_notes(self, pair, signal, entry_price, indicators_data):
+        """إنشاء ملاحظات ذكية باستخدام الذكاء الاصطناعي"""
+        try:
+            notes = []
+            
+            # تحليل الإشارة
+            if signal == 'CALL':
+                notes.append("📈 إشارة صعود - توقع ارتفاع في السعر")
+            else:
+                notes.append("📉 إشارة هبوط - توقع انخفاض في السعر")
+            
+            # تحليل المؤشرات
+            if indicators_data:
+                if 'rsi' in indicators_data:
+                    rsi = indicators_data['rsi']
+                    if rsi < 30:
+                        notes.append(f"🔴 RSI منخفض ({rsi:.1f}) - تشبع بيع محتمل")
+                    elif rsi > 70:
+                        notes.append(f"🟢 RSI مرتفع ({rsi:.1f}) - تشبع شراء محتمل")
+                    else:
+                        notes.append(f"⚖️ RSI متوازن ({rsi:.1f}) - سوق محايد")
+                
+                if 'macd' in indicators_data:
+                    macd = indicators_data['macd']
+                    if macd > 0:
+                        notes.append(f"📊 MACD إيجابي ({macd:.4f}) - زخم صاعد")
+                    else:
+                        notes.append(f"📊 MACD سلبي ({macd:.4f}) - زخم هابط")
+                
+                # تحليل الأسعار
+                if all(key in indicators_data for key in ['open', 'high', 'low', 'close']):
+                    open_price = indicators_data['open']
+                    close_price = indicators_data['close']
+                    high_price = indicators_data['high']
+                    low_price = indicators_data['low']
+                    
+                    price_change = ((close_price - open_price) / open_price) * 100
+                    if price_change > 0.1:
+                        notes.append(f"📈 تغير إيجابي في السعر (+{price_change:.2f}%)")
+                    elif price_change < -0.1:
+                        notes.append(f"📉 تغير سلبي في السعر ({price_change:.2f}%)")
+                    
+                    # تحليل التقلبات
+                    volatility = ((high_price - low_price) / open_price) * 100
+                    if volatility > 1:
+                        notes.append(f"⚡ تقلبات عالية ({volatility:.2f}%) - سوق متقلب")
+                    else:
+                        notes.append(f"📊 تقلبات منخفضة ({volatility:.2f}%) - سوق مستقر")
+            
+            # تحليل الزوج
+            if 'USD' in pair:
+                notes.append("💵 زوج يحتوي على الدولار - تأثر بالأخبار الأمريكية")
+            elif 'EUR' in pair:
+                notes.append("🇪🇺 زوج أوروبي - تأثر بأخبار المنطقة الأوروبية")
+            elif 'GBP' in pair:
+                notes.append("🇬🇧 زوج بريطاني - تأثر بأخبار المملكة المتحدة")
+            
+            # نصيحة عامة
+            notes.append("💡 نصيحة: راقب الأخبار الاقتصادية وتأكد من إدارة المخاطر")
+            
+            return " | ".join(notes)
+            
+        except Exception as e:
+            print(f"❌ خطأ في إنشاء الملاحظات الذكية: {e}")
+            return "ملاحظات ذكية غير متاحة حالياً"
+    
+    def evaluate_trade(self, trade_id, evaluation, notes="", user_notes=""):
+        """تقييم صفقة"""
+        try:
+            # البحث عن الصفقة في القائمة المعلقة
+            trade = None
+            for i, t in enumerate(self.pending_evaluations):
+                if t['id'] == trade_id:
+                    trade = t
+                    del self.pending_evaluations[i]
+                    break
+            
+            if not trade:
+                return False
+            
+            # تحديث الصفقة
+            trade['user_evaluation'] = evaluation
+            trade['notes'] = notes
+            trade['user_notes'] = user_notes
+            trade['evaluated_at'] = datetime.now().isoformat()
+            
+            if evaluation == 'cancelled':
+                trade['status'] = 'cancelled'
+                print(f"❌ تم إلغاء الصفقة {trade_id}")
+            else:
+                trade['status'] = 'successful' if evaluation == 'successful' else 'failed'
+                # إضافة للتاريخ فقط إذا لم تكن ملغاة
+                self.trade_history.append(trade)
+                print(f"✅ تم تقييم الصفقة {trade_id}: {evaluation}")
+            
+            # حفظ التاريخ
+            self.save_trade_history()
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ خطأ في تقييم الصفقة: {e}")
+            return False
+    
+    def get_pending_evaluations(self):
+        """الحصول على الصفقات المعلقة للتقييم"""
+        return self.pending_evaluations
+    
+    def get_trade_history(self, limit=50):
+        """الحصول على تاريخ الصفقات"""
+        return self.trade_history[-limit:]
+    
+    def get_trade_statistics(self):
+        """الحصول على إحصائيات الصفقات"""
+        # إحصائيات الصفقات الحقيقية
+        real_trades = [t for t in self.trade_history if t.get('trade_type') == 'real']
+        real_successful = len([t for t in real_trades if t.get('user_evaluation') == 'successful'])
+        real_failed = len([t for t in real_trades if t.get('user_evaluation') == 'failed'])
+        real_success_rate = round((real_successful / len(real_trades)) * 100, 2) if len(real_trades) > 0 else 0
+        
+        # إحصائيات الصفقات التجريبية
+        test_trades = [t for t in self.trade_history if t.get('trade_type') == 'test']
+        test_successful = len([t for t in test_trades if t.get('user_evaluation') == 'successful'])
+        test_failed = len([t for t in test_trades if t.get('user_evaluation') == 'failed'])
+        test_success_rate = round((test_successful / len(test_trades)) * 100, 2) if len(test_trades) > 0 else 0
+        
+        # إحصائيات الصفقات المعلقة
+        pending_real = len([t for t in self.pending_evaluations if t.get('trade_type') == 'real'])
+        pending_test = len([t for t in self.pending_evaluations if t.get('trade_type') == 'test'])
+        
+        # إحصائيات عامة
+        total_trades = len(self.trade_history)
+        total_successful = len([t for t in self.trade_history if t.get('user_evaluation') == 'successful'])
+        total_failed = len([t for t in self.trade_history if t.get('user_evaluation') == 'failed'])
+        total_success_rate = round((total_successful / total_trades) * 100, 2) if total_trades > 0 else 0
+        
+        return {
+            # إحصائيات عامة
+            'total_trades': total_trades,
+            'successful_trades': total_successful,
+            'failed_trades': total_failed,
+            'success_rate': total_success_rate,
+            'pending_evaluations': len(self.pending_evaluations),
+            
+            # إحصائيات الصفقات الحقيقية
+            'real_trades': len(real_trades),
+            'successful_real_trades': real_successful,
+            'failed_real_trades': real_failed,
+            'real_success_rate': real_success_rate,
+            'pending_real_trades': pending_real,
+            
+            # إحصائيات الصفقات التجريبية
+            'test_trades': len(test_trades),
+            'successful_test_trades': test_successful,
+            'failed_test_trades': test_failed,
+            'test_success_rate': test_success_rate,
+            'pending_test_trades': pending_test
         }
     
    
@@ -1223,6 +1452,81 @@ class TradingAnalyzer:
         except Exception as e:
             print(f"❌ خطأ في تدريب النماذج لـ {pair}: {e}")
             return False
+    
+    def train_ai_with_evaluations(self):
+        """تدريب الذكاء الاصطناعي بناءً على تقييمات الصفقات الحقيقية فقط"""
+        try:
+            # فلترة الصفقات الحقيقية فقط
+            real_trades = [trade for trade in self.trade_history 
+                          if trade.get('trade_type') == 'real' and 
+                          trade.get('user_evaluation') in ['successful', 'failed']]
+            
+            if len(real_trades) < 10:
+                print(f"❌ لا توجد صفقات حقيقية كافية للتدريب (يحتاج 10+ صفقة حقيقية، موجود: {len(real_trades)})")
+                return False
+            
+            # تحضير البيانات من التقييمات الحقيقية فقط
+            features = []
+            labels = []
+            
+            for trade in real_trades:
+                    # إعداد الميزات من بيانات المؤشرات
+                    feature_vector = []
+                    
+                    # إضافة بيانات الأسعار
+                    if 'indicators_data' in trade:
+                        indicators = trade['indicators_data']
+                        feature_vector.extend([
+                            indicators.get('open', 0),
+                            indicators.get('high', 0),
+                            indicators.get('low', 0),
+                            indicators.get('close', 0)
+                        ])
+                        
+                        # إضافة قيم المؤشرات
+                        for key, value in indicators.items():
+                            if key not in ['open', 'high', 'low', 'close'] and value is not None:
+                                feature_vector.append(float(value))
+                    
+                    # التأكد من عدد الميزات ثابت
+                    while len(feature_vector) < 6:
+                        feature_vector.append(0)
+                    
+                    # إعداد التسمية
+                    if trade['user_evaluation'] == 'successful':
+                        if trade['signal'] == 'CALL':
+                            label = 1  # BUY ناجح
+                        else:
+                            label = 0  # SELL ناجح
+                    else:
+                        if trade['signal'] == 'CALL':
+                            label = 0  # BUY فاشل
+                        else:
+                            label = 1  # SELL فاشل
+                    
+                    features.append(feature_vector)
+                    labels.append(label)
+            
+            if len(features) < 10:
+                print("❌ بيانات تدريب غير كافية من التقييمات")
+                return False
+            
+            print(f"🤖 تدريب النماذج على {len(features)} تقييم صفقة...")
+            
+            # تدريب النماذج
+            ml_success = self.ai_system.train_ml_models(np.array(features), np.array(labels))
+            lstm_success = self.ai_system.train_lstm_model(np.array(features), np.array(labels))
+            cnn_success = self.ai_system.train_cnn_model(np.array(features), np.array(labels))
+            
+            # حفظ النماذج
+            self.ai_system.save_models()
+            
+            print(f"✅ تم تدريب النماذج على {len(features)} صفقة حقيقية - ML: {ml_success}, LSTM: {lstm_success}, CNN: {cnn_success}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ خطأ في تدريب النماذج على التقييمات: {e}")
+            return False
 
     def generate_signal(self, indicators_data, price_data, selected_indicators):
         """توليد إشارة التداول مع الذكاء الاصطناعي"""
@@ -1613,6 +1917,228 @@ def get_ai_performance():
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'خطأ في الحصول على الأداء: {str(e)}'})
 
+# API endpoints لتقييم الصفقات
+@app.route('/api/trades/pending')
+def get_pending_trades():
+    """الحصول على الصفقات المعلقة للتقييم"""
+    try:
+        pending_trades = analyzer.get_pending_evaluations()
+        return jsonify({
+            'status': 'success',
+            'trades': pending_trades
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'خطأ في الحصول على الصفقات: {str(e)}'})
+
+@app.route('/api/trades/history')
+def get_trade_history():
+    """الحصول على تاريخ الصفقات"""
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        history = analyzer.get_trade_history(limit)
+        return jsonify({
+            'status': 'success',
+            'trades': history
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'خطأ في الحصول على التاريخ: {str(e)}'})
+
+@app.route('/api/trades/statistics')
+def get_trade_statistics():
+    """الحصول على إحصائيات الصفقات"""
+    try:
+        stats = analyzer.get_trade_statistics()
+        return jsonify({
+            'status': 'success',
+            'statistics': stats
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'خطأ في الحصول على الإحصائيات: {str(e)}'})
+
+@app.route('/api/trades/evaluate', methods=['POST'])
+def evaluate_trade():
+    """تقييم صفقة"""
+    try:
+        data = request.json
+        trade_id = data.get('trade_id')
+        evaluation = data.get('evaluation')  # 'successful', 'failed', or 'cancelled'
+        notes = data.get('notes', '')
+        user_notes = data.get('user_notes', '')
+        
+        if not trade_id or not evaluation:
+            return jsonify({'status': 'error', 'message': 'معاملات مطلوبة مفقودة'})
+        
+        if evaluation not in ['successful', 'failed', 'cancelled']:
+            return jsonify({'status': 'error', 'message': 'التقييم يجب أن يكون successful أو failed أو cancelled'})
+        
+        success = analyzer.evaluate_trade(trade_id, evaluation, notes, user_notes)
+        
+        if success:
+            if evaluation == 'cancelled':
+                return jsonify({
+                    'status': 'success',
+                    'message': 'تم إلغاء الصفقة'
+                })
+            else:
+                return jsonify({
+                    'status': 'success',
+                    'message': f'تم تقييم الصفقة: {evaluation}'
+                })
+        else:
+            return jsonify({'status': 'error', 'message': 'لم يتم العثور على الصفقة'})
+            
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'خطأ في تقييم الصفقة: {str(e)}'})
+
+@app.route('/api/trades/add', methods=['POST'])
+def add_trade_for_evaluation():
+    """إضافة صفقة للتقييم"""
+    try:
+        data = request.json
+        pair = data.get('pair')
+        signal = data.get('signal')
+        entry_price = data.get('entry_price')
+        entry_time = data.get('entry_time')
+        exit_time = data.get('exit_time')
+        indicators_data = data.get('indicators_data', {})
+        trade_type = data.get('trade_type', 'test')  # 'real' or 'test'
+        
+        if not all([pair, signal, entry_price, entry_time, exit_time]):
+            return jsonify({'status': 'error', 'message': 'معاملات مطلوبة مفقودة'})
+        
+        trade_id = analyzer.add_trade_for_evaluation(
+            pair, signal, entry_price, entry_time, exit_time, indicators_data, trade_type
+        )
+        
+        return jsonify({
+            'status': 'success',
+            'trade_id': trade_id,
+            'message': f'تم إضافة صفقة {trade_type} للتقييم'
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'خطأ في إضافة الصفقة: {str(e)}'})
+
+@app.route('/api/ai/train-evaluations', methods=['POST'])
+def train_ai_with_evaluations():
+    """تدريب الذكاء الاصطناعي على تقييمات الصفقات"""
+    try:
+        success = analyzer.train_ai_with_evaluations()
+        
+        if success:
+            return jsonify({
+                'status': 'success',
+                'message': 'تم تدريب النماذج على تقييمات الصفقات بنجاح',
+                'statistics': analyzer.get_trade_statistics(),
+                'ai_metrics': analyzer.ai_system.get_performance_metrics()
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'فشل في تدريب النماذج - تأكد من وجود 10+ تقييمات'
+            })
+            
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'خطأ في التدريب: {str(e)}'})
+
+@app.route('/api/ai/training-status')
+def get_training_status():
+    """الحصول على حالة التدريب الحالية"""
+    try:
+        stats = analyzer.get_trade_statistics()
+        ai_metrics = analyzer.ai_system.get_performance_metrics()
+        
+        # حساب نسبة التقدم
+        total_trades = stats.get('total_trades', 0)
+        pending_trades = stats.get('pending_evaluations', 0)
+        evaluated_trades = total_trades - pending_trades
+        
+        progress_percentage = 0
+        if total_trades > 0:
+            progress_percentage = (evaluated_trades / total_trades) * 100
+        
+        # تحديد حالة التدريب
+        training_status = "جاهز للتدريب"
+        if total_trades < 10:
+            training_status = f"يحتاج {10 - total_trades} صفقات أخرى للتدريب"
+        elif pending_trades > 0:
+            training_status = f"يوجد {pending_trades} صفقة معلقة للتقييم"
+        elif evaluated_trades >= 10:
+            training_status = "جاهز للتدريب - يمكن تدريب النماذج"
+        
+        return jsonify({
+            'status': 'success',
+            'training_status': training_status,
+            'progress_percentage': round(progress_percentage, 1),
+            'statistics': stats,
+            'ai_metrics': ai_metrics,
+            'recommendations': {
+                'can_train': evaluated_trades >= 10,
+                'needs_more_data': total_trades < 10,
+                'has_pending': pending_trades > 0
+            }
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'خطأ في الحصول على حالة التدريب: {str(e)}'})
+
+@app.route('/api/trades/analytics')
+def get_trade_analytics():
+    """الحصول على تحليلات مفصلة للصفقات"""
+    try:
+        stats = analyzer.get_trade_statistics()
+        history = analyzer.get_trade_history(100)  # آخر 100 صفقة
+        
+        # تحليل الصفقات حسب الزوج
+        pair_analysis = {}
+        for trade in history:
+            pair = trade.get('pair', 'Unknown')
+            if pair not in pair_analysis:
+                pair_analysis[pair] = {'total': 0, 'successful': 0, 'failed': 0}
+            
+            pair_analysis[pair]['total'] += 1
+            if trade.get('user_evaluation') == 'successful':
+                pair_analysis[pair]['successful'] += 1
+            elif trade.get('user_evaluation') == 'failed':
+                pair_analysis[pair]['failed'] += 1
+        
+        # حساب معدلات النجاح لكل زوج
+        for pair in pair_analysis:
+            total = pair_analysis[pair]['total']
+            successful = pair_analysis[pair]['successful']
+            if total > 0:
+                pair_analysis[pair]['success_rate'] = round((successful / total) * 100, 2)
+            else:
+                pair_analysis[pair]['success_rate'] = 0
+        
+        # تحليل الصفقات حسب الإشارة
+        signal_analysis = {'CALL': {'total': 0, 'successful': 0}, 'PUT': {'total': 0, 'successful': 0}}
+        for trade in history:
+            signal = trade.get('signal', 'Unknown')
+            if signal in signal_analysis:
+                signal_analysis[signal]['total'] += 1
+                if trade.get('user_evaluation') == 'successful':
+                    signal_analysis[signal]['successful'] += 1
+        
+        # حساب معدلات النجاح لكل إشارة
+        for signal in signal_analysis:
+            total = signal_analysis[signal]['total']
+            successful = signal_analysis[signal]['successful']
+            if total > 0:
+                signal_analysis[signal]['success_rate'] = round((successful / total) * 100, 2)
+            else:
+                signal_analysis[signal]['success_rate'] = 0
+        
+        return jsonify({
+            'status': 'success',
+            'overall_stats': stats,
+            'pair_analysis': pair_analysis,
+            'signal_analysis': signal_analysis,
+            'total_trades_analyzed': len(history),
+            'analysis_date': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'خطأ في تحليل الصفقات: {str(e)}'})
+
 
 @app.route('/api/results')
 def get_results():
@@ -1636,15 +2162,35 @@ def get_results():
                     interval_str
                 )
                 if analysis:
+                    # إصلاح التوقيت: الصفقة تبدأ بعد دقيقة من التحليل
                     next_candle = current_time.replace(second=0, microsecond=0) + timedelta(minutes=1)
                     end_time = next_candle + timedelta(minutes=config['interval'])
 
                     analysis['trade_timing'] = {
                         'current_time': current_time.strftime('%Y-%m-%d %H:%M:%S'),
+                        'analysis_time': current_time.strftime('%H:%M:%S'),
                         'entry_time': next_candle.strftime('%H:%M:%S'),
                         'exit_time': end_time.strftime('%H:%M:%S'),
-                        'duration': config['interval']
+                        'duration': config['interval'],
+                        'wait_time': '1 دقيقة'  # وقت الانتظار قبل الدخول
                     }
+
+                    # إضافة الصفقة للتقييم إذا كانت إشارة واضحة (فقط للصفقات الحقيقية)
+                    if analysis['signal'] in ['CALL', 'PUT'] and analysis['confidence'] > 60:
+                        try:
+                            trade_id = analyzer.add_trade_for_evaluation(
+                                pair=pair,
+                                signal=analysis['signal'],
+                                entry_price=analysis['price']['close'],
+                                entry_time=next_candle.strftime('%H:%M:%S'),
+                                exit_time=end_time.strftime('%H:%M:%S'),
+                                indicators_data=analysis.get('indicators', {}),
+                                trade_type='real'  # صفقة حقيقية
+                            )
+                            analysis['trade_id'] = trade_id
+                            print(f"📝 تم إضافة صفقة حقيقية {pair} للتقييم: {trade_id}")
+                        except Exception as e:
+                            print(f"❌ خطأ في إضافة الصفقة للتقييم: {e}")
 
                     results[pair] = analysis
                 else:
